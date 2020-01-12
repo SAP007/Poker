@@ -1,5 +1,6 @@
 package poker;
 
+import java.util.Arrays;
 
 //Rules governing game
 public class Rules {
@@ -109,6 +110,30 @@ public class Rules {
 			}
 		}
 		return true;
+		
+	}
+	
+	public boolean isStraight(Card[] hand) {
+		
+		int[] handNums = new int[5];
+		
+		for (int i = 0; i < 5; i++) {
+			int currNum = hand[i].getNumber();
+			handNums[i] = currNum;
+		}
+		
+		Arrays.sort(handNums);
+		
+		int currNum = handNums[0];
+		for (int i = 1; i < 5; i++) {
+			int nextNum = handNums[i];
+			
+			if (nextNum != currNum + 1) return false;
+			
+		}
+		
+		return true;
+		
 		
 	}
 	
