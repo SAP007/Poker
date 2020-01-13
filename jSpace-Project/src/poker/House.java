@@ -49,12 +49,17 @@ public class House {
 			// Add the space to the repository
 			spaceRepo.add("lobby", lobby);
 			
+
 			while (true) {
 				System.out.println("get from client");
 				Object[] t = lobby.get(new FormalField(String.class), new FormalField(Integer.class), new FormalField(Integer.class), new FormalField(Integer.class));
+				lobby.put(t[0], t[3] );
+				
+				
 				System.out.println(t[0] + ": Balance: " + t[1] + " playerId: " + t[2] + "bet: " + t[3]);
 				System.out.println("done");
 			}
+			
 		
 	}
 }
