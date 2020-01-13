@@ -3,6 +3,13 @@ package poker;
 import org.jspace.RandomSpace;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.jspace.FormalField;
+//import java.io.BufferedReader;
+//import java.io.IOException;
+//import java.io.InputStreamReader;
+
 
 public class House {
 	public static void main(String[] args) {
@@ -33,38 +40,16 @@ public class House {
 		spaceRepo.add("deck", deck);
 	}
 
-
-}
-
-package poker;
-
-//
-//import java.io.BufferedReader;
-//import java.io.IOException;
-//import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.jspace.FormalField;
-import org.jspace.SequentialSpace;
-import org.jspace.SpaceRepository;
-
-public class House {
-
-	public static void main(String[] args) {
+	public static void createLobby() {
 		try {
 
 			// BufferedReader input = new BufferedReader(new
 			// InputStreamReader(System.in));
-
-			// Create a repository
-			SpaceRepository repository = new SpaceRepository();
-
 			// Create a local space for the chat messages
 			SequentialSpace lobby = new SequentialSpace();
 
 			// Add the space to the repository
-			repository.add("lobby", lobby);
+			spaceRepo.add("lobby", lobby);
 
 			// Default value
 			String uri = "tcp://127.0.0.1:9001/?keep";
@@ -73,7 +58,7 @@ public class House {
 			URI myUri = new URI(uri);
 			String gateUri = "tcp://" + myUri.getHost() + ":" + myUri.getPort() + "?keep";
 			System.out.println("Opening repository gate at " + gateUri + "...");
-			repository.addGate(gateUri);
+			spaceRepo.addGate(gateUri);
 
 			//
 			while (true) {
