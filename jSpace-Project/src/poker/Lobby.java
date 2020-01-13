@@ -1,5 +1,5 @@
 package poker;
 
-public class Lobby {
-
+public class Lobby{
+	
 }
