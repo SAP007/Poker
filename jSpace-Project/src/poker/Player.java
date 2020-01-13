@@ -22,10 +22,10 @@ public class Player {
 	}
 
 	//Constructor
-	public Player( String name,int balance, int playerId) {
+	public Player( String name,int balance) {
 		this.name = name;
 		this.balance = balance;
-		this.playerId= playerId + 1;
+	
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -35,16 +35,11 @@ public class Player {
 			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 			// Set the URI of the chat space
-			// Default value
-			System.out.print("Enter URI of the chat server or press enter for default: ");
-			String uri = input.readLine();
-			// Default value
-			if (uri.isEmpty()) {
-				uri = "tcp://127.0.0.1:9001" + "/lobby?keep";
-			}
+	
+			String uri = "tcp://localhost:9003/lobby?keep";
 
 			// Connect to the remote chat space
-			System.out.println("Connecting to chat space " + uri + "...");
+			System.out.println("Connecting to poker lobby " + uri + "...");
 			RemoteSpace lobby = new RemoteSpace(uri);
 
 			// create your player
@@ -53,14 +48,16 @@ public class Player {
 			System.out.print("Enter your balance: ");
 			int balance = Integer.parseInt(input.readLine());
 
-			Player player = new Player((String) name , (int) balance, Player.playerId);
+			Player player = new Player((String) name , (int) balance);
 			
 
 			// Keep sending user name and call, raise fold
 			System.out.println("make a bet...");
 			while (true) {
 				int bet = Integer.parseInt(input.readLine());
-				lobby.put(player.name, player.balance, Player.playerId, bet);
+				System.out.println("name: "+ name.getClass()+ "balance: "+ balance + "bet: " + bet);
+				lobby.put(player.name, player.balance, player.playerId,bet);
+				System.out.println("byyeeeee ");
 			}
 
 		} catch (UnknownHostException e) {
