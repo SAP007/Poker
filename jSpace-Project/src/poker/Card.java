@@ -7,20 +7,28 @@ import org.jspace.ActualField;
 import org.jspace.FormalField;
 import org.jspace.RemoteSpace;
 
-public class Card {
-	
-	public static void main(String[] args) throws IOException, IOException {
-	String deckUri = "tcp://localhost:9002/deck?keep";
-	RemoteSpace deckSpace = new RemoteSpace(deckUri);
-	int numberOfCards = 52;
-	
+public class Card {	
 
-
-	}		
+	Suit suit;
+	int number;
 	public Card(){
 		String suit;
 		int value;
 		}
+	
+	public Card(Suit suit, int number) {
+		this.suit = suit;
+		this.number = number;
+	}
+	
+	public Suit getSuit() {
+		return suit;
+	}
+	
+	public int getNumber() {
+		return number;
+	}
+	
 	
 	public void addToDeck() throws InterruptedException, UnknownHostException, IOException {
 		//Need to create a check if the space exists.
@@ -31,8 +39,16 @@ public class Card {
 			deckSpace.put(i, j); //tuple,
 		}
 	}
-	}		
-				
+	}	
+	
+	
+	public static void main(String[] args) throws IOException, IOException {
+	String deckUri = "tcp://localhost:9002/deck?keep";
+	RemoteSpace deckSpace = new RemoteSpace(deckUri);
+	int numberOfCards = 52;
+	
+	}	
+			
 				
 }
 
