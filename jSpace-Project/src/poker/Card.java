@@ -30,7 +30,7 @@ public class Card {
 	}
 	
 	
-	public void addToDeck() throws InterruptedException, UnknownHostException, IOException {
+	public static void addToDeck() throws InterruptedException, UnknownHostException, IOException {
 		//Need to create a check if the space exists.
 		String deckUri = "tcp://localhost:9002/deck?keep";
 		RemoteSpace deckSpace = new RemoteSpace(deckUri);
@@ -39,16 +39,23 @@ public class Card {
 			deckSpace.put(i, j); //tuple,
 		}
 	}
+	Thread.sleep(600);
+	Object[] t = deckSpace.query(new FormalField(Integer.class), new FormalField(Integer.class));
+	System.out.println(deckSpace.size());
+	Object[] ts = deckSpace.get(new FormalField(Integer.class), new FormalField(Integer.class));
+	System.out.println(ts[0]);
+	System.out.println(ts[1]);
 	}	
 	
 	
-	public static void main(String[] args) throws IOException, IOException {
+	public static void main(String[] args) throws IOException, IOException, InterruptedException {
 	String deckUri = "tcp://localhost:9002/deck?keep";
 	RemoteSpace deckSpace = new RemoteSpace(deckUri);
 	int numberOfCards = 52;
+	
+	addToDeck();
 	
 	}	
 			
 				
 }
-
