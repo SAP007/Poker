@@ -103,62 +103,14 @@ public class Rules {
 		return largestMult;
 	}
 
-	private static boolean isFlush(Card[] hand) throws Exception {
 
-		// TODO: make work with 7 card hand
+	public static boolean isValidHand(Card[] actualHand) {
 
-		int numOfClubs, numOfDiamonds, numOfHearts, numOfSpades;
-		numOfClubs = 0;
-		numOfDiamonds = 0;
-		numOfHearts = 0;
-		numOfSpades = 0;
-
-		Card[] clubHand = new Card[5];
-		Card[] diamondHand = new Card[5];
-		Card[] heartHand = new Card[5];
-		Card[] spadeHand = new Card[5];
-
-		Suit currSuit;
-		Card currCard;
-
-		// return false if one suit does not match
-		for (int i = 1; i < HANDSIZE; i++) {
-
-			currCard = hand[i];
-
-			// get suit of current card
-			currSuit = currCard.getSuit();
-
-			// increment counter of appropriate suit
-			if (currSuit == Suit.CLUBS) {
-				clubHand[numOfClubs] = currCard;
-				numOfClubs++;
-			}
-
-			else if (currSuit == Suit.DIAMONDS) {
-				diamondHand[numOfDiamonds] = currCard;
-				numOfDiamonds++;
-			}
-
-			else if (currSuit == Suit.HEARTS) {
-				heartHand[numOfHearts] = currCard;
-				numOfHearts++;
-			}
-
-			else if (currSuit == Suit.SPADES) {
-				spadeHand[numOfSpades] = currCard;
-				numOfSpades++;
-			}
-
-			// if no counter can be incremented, throw exception
-			else {
-				throw new Exception("Invalid suit value: " + currSuit);
-			}
-
+		for (int i = 0; i < 5; i++) {
+			if (actualHand[i] == null)
+				return false;
 		}
-
-		// returns true only if there are 5 ore more cards of same suit
-		return (numOfClubs >= 5) || (numOfDiamonds >= 5) || (numOfHearts >= 5) || (numOfSpades >= 5);
+		return true;
 
 	}
 
@@ -173,13 +125,7 @@ public class Rules {
 		hand[0] = new Card(Suit.HEARTS, 9);
 		hand[1] = new Card(Suit.HEARTS, 11);
 
-		System.out.println(isValidHand(HandEvaluator.getStraightHand(hand)));
-
-		if (isFlush(hand)) {
-			System.out.println("is flush");
-		} else {
-			System.out.println("not flush");
-		}
+		System.out.println(isValidHand(HandEvaluator.getFlushHand(hand)));
 
 		int mult = 0;
 
@@ -199,43 +145,5 @@ public class Rules {
 			System.out.println("one of a kind");
 		}
 	}
-
-	public static boolean isValidHand(Card[] actualHand) {
-
-		for (int i = 0; i < 5; i++) {
-			if (actualHand[i] == null)
-				return false;
-		}
-		return true;
-
-	}
-
-	// used to replace smaller flush cards with greater ones
-	public static Card[] insertIfLarger(Card[] actualHand, Card card) {
-
-		int min = 15;
-		int currNum;
-		Card minCard = null;
-		int minIndex = -1;
-
-		for (int i = 0; i < actualHand.length; i++) {
-
-			currNum = actualHand[i].getNumber();
-
-			if (currNum < min) {
-				min = currNum;
-				minCard = actualHand[i];
-				minIndex = i;
-			}
-		}
-		
-		if (minCard.getNumber() < card.getNumber() && minIndex > -1) {
-			actualHand[minIndex] = card;
-		}
-		
-		
-		return actualHand;
-	}
-	
 
 }
