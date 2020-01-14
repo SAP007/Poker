@@ -1,5 +1,6 @@
 package poker;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -17,44 +18,76 @@ public class Rules {
 		return 0;
 	}
 
-	private boolean isFullHouse(Card[] hand) {
+	private static Card[] getFullHouse(Card[] hand) {
 
 		// TODO: make work for 7 cards
-
-		int firstVal = hand[0].getNumber();
-		int secondVal = 0;
-		int currVal;
-
-		// multiples of cards, should have values 3 and 2 for full house
-		int firstMult = 1;
-		int secondMult = 1;
-
-		// false if second value has not been assigned
-		boolean secondValAssigned = false;
+		
+		hand = HandEvaluator.sortHand(hand);
+		Card[] actualHand = new Card[5];
+		
+		//parts making up a full house
+		Card[] triplet = new Card[3];
+		Card[] pair = new Card[2];
+		
+		Card[] temp = new Card[3];
+		
+		System.out.println("hand sorted: ");
+		
+		for (int i = 0; i < hand.length; i++) {
+			System.out.print(hand[i].toString() + ", ");
+		}
+		System.out.println();
+		
+		
+		Card currCard = hand[0];
+		int count = 1;
+		temp[0] = currCard;
+		int currVal = currCard.getNumber();
+		
+		Card nextCard = null;
+		int nextVal = 0;
 
 		for (int i = 1; i < HANDSIZE; i++) {
-			currVal = hand[i].getNumber();
+			nextCard = hand[i];
+			nextVal = nextCard.getNumber();
 
 			// increment multiple of first value if the number are equal
-			if (currVal == firstVal) {
-				firstMult++;
+			if (currVal == nextVal) {
+				temp[count - 1] = nextCard;
+				count++;
 			}
-
-			// assign secondVal, if not yet assigned
-			else if (!secondValAssigned) {
-				secondVal = currVal;
-				secondValAssigned = true;
+			else {
+				count = 1;
+				for (int j = 0; j < temp.length; j++) {
+					temp[j] = null;
+				}
 			}
-
-			// increment multiple of second value if the number are equal
-			else if (secondVal == currVal) {
-				secondMult++;
+			
+			//when two of the same kind are found, add them to pair
+			if (count == 2) {
+				for (int j = 0; j < pair.length; j++) {
+					pair[j] = temp[j];
+				}
+			}
+			else if (count > 2) {
+				for (int j = 0; j < triplet.length; j++) {
+					triplet[j] = temp[j];
+				}
 			}
 
 		}
-
+		
+		for (int i = 0; i < pair.length; i++) {
+			actualHand[i] = pair[i];
+		}
+		for (int i = 0; i < triplet.length; i++) {
+			actualHand[i + 2] = triplet[i];
+		}
+		
+		
+		
 		// returns true only if full house
-		return (firstMult == 3 && secondMult == 2) || (firstMult == 2 && secondMult == 3);
+		return actualHand;
 
 	}
 
@@ -119,13 +152,15 @@ public class Rules {
 
 		Card[] hand = new Card[HANDSIZE];
 
-		for (int i = 0; i < HANDSIZE; i++) {
-			hand[i] = new Card(Suit.suitFromInt(i % 4), i + 4);
+		for (int i = 2; i < HANDSIZE; i++) {
+			hand[i] = new Card(Suit.suitFromInt(i % 4), 4);
 		}
-		hand[0] = new Card(Suit.HEARTS, 9);
-		hand[1] = new Card(Suit.HEARTS, 11);
+		hand[0] = new Card(Suit.HEARTS, 2);
+		hand[1] = new Card(Suit.CLUBS, 2);
 
 		System.out.println(isValidHand(HandEvaluator.getFlushHand(hand)));
+		
+		System.out.println("Fullhouse: " + isValidHand(getFullHouse(hand)));
 
 		int mult = 0;
 
