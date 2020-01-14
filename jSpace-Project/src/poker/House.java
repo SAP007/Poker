@@ -13,7 +13,7 @@ import org.jspace.FormalField;
 //import java.io.InputStreamReader;
 
 public class House {
-	
+
 	public static void main(String[] args) throws InterruptedException {
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
@@ -43,20 +43,23 @@ public class House {
 		spaceRepo.add("deck", deck);
 	}
 
-	public static void createLobby(SpaceRepository spaceRepo) throws InterruptedException {
-		
-			//creates a lobby for players 
-			SequentialSpace lobby = new SequentialSpace();
-			// Add the space to the repository
-			spaceRepo.add("lobby", lobby);
-			
-			while (true) {
-				System.out.println("get from client");
-				Object[] t = lobby.get(new FormalField(String.class), new FormalField(Integer.class), new FormalField(Integer.class), new FormalField(Integer.class));
-				System.out.println(t[0] + ": Balance: " + t[1] + " playerId: " + t[2] + "bet: " + t[3]);
-				System.out.println("done");
-			}
-		
+	public static void createLobby() throws InterruptedException {
+
+		// creates a lobby for players
+		SequentialSpace lobby = new SequentialSpace();
+		// Add the space to the repository
+		spaceRepo.add("lobby", lobby);
+
+		while (true) {
+			System.out.println("get from client");
+			Object[] t = lobby.get(new FormalField(String.class), new FormalField(Integer.class),
+					new FormalField(Integer.class), new FormalField(Integer.class));
+			lobby.put(t[0], t[3]);
+
+			System.out.println(t[0] + ": Balance: " + t[1] + " playerId: " + t[2] + "bet: " + t[3]);
+			System.out.println("done");
+		}
+
 	}
 	
 	public static void createBoard(SpaceRepository spaceRepo, SequentialSpace board) {
@@ -101,3 +104,5 @@ public class House {
 	}
 	
 }
+
+
