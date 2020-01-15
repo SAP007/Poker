@@ -9,8 +9,8 @@ import org.jspace.RemoteSpace;
 
 public class Card {
 
-	Suit suit;
-	int number;
+	private Suit suit;
+	private int number;
 
 	public Card() {
 		String suit;

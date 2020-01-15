@@ -103,14 +103,55 @@ public class HandEvaluator {
 	}
 	
 	
-	
+	static Card[] getFullHouse(Card[] hand) {
+
+
+		int[] multTracker = new int[12];
+		Card[] actualHand = new Card[5];
+		
+		hand = HandEvaluator.sortHand(hand);
+		
+		for (Card card : hand) {
+			multTracker[card.getNumber() - 2] = multTracker[card.getNumber() - 2] + 1;
+		}
+		boolean tripFound = false;
+		// find triplet
+		int triplet = -1;
+		int pair = -1;
+		for (int i = 11; i >= 0; i--) {
+			if (multTracker[i] >= 3 && !tripFound) {
+				triplet = i + 2;
+				tripFound = true;
+			} else if (multTracker[i] >= 2) {
+				pair = i + 2;
+			}
+		}
+		
+		
+		int actualIndex = 0;
+		
+		for (int i = 6; i >= 0; i--) {
+			
+			Card card = hand[i];
+			System.out.println("cardNum: " + card.getNumber() + ", pair: " + pair);
+			
+			if ((card.getNumber() == pair || card.getNumber() == triplet) && actualIndex < 5) {
+				actualHand[actualIndex] = card;
+				actualIndex++;
+			}
+		}
+
+		
+		return actualHand;
+
+	}
 	
 	
 	
 	public static Card[] getStraightHand(Card[] hand) {
 
 
-		hand = shellsort(hand);
+		hand = sortHand(hand);
 
 		// currently considered number
 		int currNum = hand[0].getNumber();
@@ -126,7 +167,6 @@ public class HandEvaluator {
 
 			// if nextNum is exactly one greater than currNum, add to actualHand
 			if (nextNum == currNum + 1) {
-
 
 				actualHand[actualIndex % 5] = hand[i];
 				actualIndex++;
@@ -195,7 +235,7 @@ public class HandEvaluator {
 	
 	
 	// from https://java2blog.com/shell-sort-in-java/
-	private static Card[] shellsort(Card[] hand) {
+	static Card[] sortHand(Card[] hand) {
 
 		// first part uses the Knuth's interval sequence
 		int h = 1;
