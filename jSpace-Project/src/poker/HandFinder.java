@@ -1,6 +1,6 @@
 package poker;
 
-public class HandEvaluator {
+public class HandFinder {
 
 	public static final int HANDSIZE = 7;
 	
@@ -109,7 +109,7 @@ public class HandEvaluator {
 		int[] multTracker = new int[12];
 		Card[] actualHand = new Card[5];
 		
-		hand = HandEvaluator.sortHand(hand);
+		hand = HandFinder.sortHand(hand);
 		
 		for (Card card : hand) {
 			multTracker[card.getNumber() - 2] = multTracker[card.getNumber() - 2] + 1;
