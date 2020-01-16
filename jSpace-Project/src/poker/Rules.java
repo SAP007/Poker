@@ -1,11 +1,5 @@
 package poker;
 
-import java.io.ObjectInputStream.GetField;
-import java.util.Arrays;
-import java.util.Comparator;
-
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
-
 //Rules governing game
 public class Rules {
 
@@ -14,6 +8,7 @@ public class Rules {
 	public int getHandPower(Card[] hand) {
 
 		// TODO: assign numerical value based on power of a hand
+		
 
 		return 0;
 	}
@@ -76,8 +71,42 @@ public class Rules {
 	}
 
 	// Main for testing purposes
-//	public static void main(String[] args) throws Exception {
-//
+	public static void main(String[] args) throws Exception {
+
+		Card[] hand = new Card[7];
+
+		hand[0] = new Card(Suit.CLUBS, 6);
+		hand[1] = new Card(Suit.CLUBS, 7);
+		hand[2] = new Card(Suit.CLUBS, 7);
+		hand[3] = new Card(Suit.CLUBS, 13);
+		hand[4] = new Card(Suit.CLUBS, 7);
+		hand[5] = new Card(Suit.CLUBS, 6);
+		hand[6] = new Card(Suit.CLUBS, 13);
+
+		Card[] actualHand = new Card[5];
+
+		actualHand = HandFinder.findMultOfAKind(hand, 4);
+		for (Card card : actualHand) {
+			if (Rules.isValidHand(actualHand))
+				System.out.print(card.toString() + ", ");
+		}
+		System.out.println();
+
+		actualHand = HandFinder.findMultOfAKind(hand, 3);
+		for (Card card : actualHand) {
+			if (Rules.isValidHand(actualHand))
+				System.out.print(card.toString() + ", ");
+		}
+		System.out.println();
+
+		actualHand = HandFinder.findMultOfAKind(hand, 2);
+		for (Card card : actualHand) {
+			if (Rules.isValidHand(actualHand))
+				System.out.print(card.toString() + ", ");
+		}
+		System.out.println();
+		
+		
 //		Card[] hand = new Card[HANDSIZE];
 //
 //		for (int i = 2; i < HANDSIZE; i++) {
@@ -85,10 +114,11 @@ public class Rules {
 //		}
 //		hand[0] = new Card(Suit.HEARTS, 2);
 //		hand[1] = new Card(Suit.CLUBS, 2);
+//		hand[2] = new Card(Suit.SPADES, 5);
 //
-//		System.out.println(isValidHand(HandEvaluator.getFlushHand(hand)));
+//		System.out.println(isValidHand(HandFinder.findFlushHand(hand)));
 //
-//		System.out.println("Fullhouse: " + isValidHand(HandEvaluator.getFullHouse(hand)));
+//		System.out.println("Fullhouse: " + isValidHand(HandFinder.findFullHouse(hand)));
 //
 //		int mult = 0;
 //
@@ -107,6 +137,6 @@ public class Rules {
 //		else {
 //			System.out.println("one of a kind");
 //		}
-//	}
+	}
 
 }

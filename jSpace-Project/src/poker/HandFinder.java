@@ -7,8 +7,45 @@ public class HandFinder {
 	
 	
 	
+	static Card[] findMultOfAKind(Card[] hand, int mult) {
+
+		Card[] actualHand = new Card[5];
+
+		int[] multTracker = makeMultTracker(hand);
+		int bestVal = -1;
+
+		for (int i = hand.length - 1; i >= 0; i--) {
+			int currMult = multTracker[i];
+			if (currMult >= mult) {
+				bestVal = hand[i].getNumber();
+				break;
+			}
+
+		}
+
+		if (bestVal == -1)
+			return actualHand;
+
+		int remainder = 5 - mult;
+		int actualIndex = 0;
+		for (int i = hand.length - 1; i >= 0; i--) {
+			int currVal = hand[i].getNumber();
+			if (currVal == bestVal && actualIndex < 5) {
+				actualHand[actualIndex] = hand[i];
+				actualIndex++;
+			} else if (remainder > 0 && actualIndex < 5) {
+				actualHand[actualIndex] = hand[i];
+				actualIndex++;
+				remainder--;
+			}
+
+		}
+
+		return actualHand;
+	}
 	
-	public static Card[] getFlushHand(Card[] hand) throws Exception {
+	
+	public static Card[] findFlushHand(Card[] hand) throws Exception {
 
 		Card[] actualHand = new Card[5];
 
@@ -103,17 +140,16 @@ public class HandFinder {
 	}
 	
 	
-	static Card[] getFullHouse(Card[] hand) {
+	static Card[] findFullHouse(Card[] hand) {
 
 
 		int[] multTracker = new int[12];
 		Card[] actualHand = new Card[5];
 		
-		hand = HandFinder.sortHand(hand);
+		hand = sortHand(hand);
 		
-		for (Card card : hand) {
-			multTracker[card.getNumber() - 2] = multTracker[card.getNumber() - 2] + 1;
-		}
+		multTracker = makeMultTracker(hand);
+		
 		boolean tripFound = false;
 		// find triplet
 		int triplet = -1;
@@ -146,9 +182,20 @@ public class HandFinder {
 
 	}
 	
+	static int[] makeMultTracker(Card[] hand) {
+		int[] multTracker = new int[12];
+		hand = sortHand(hand);
+		
+		for (Card card : hand) {
+			multTracker[card.getNumber() - 2] = multTracker[card.getNumber() - 2] + 1;
+		}
+		
+		return multTracker;
+	}
 	
 	
-	public static Card[] getStraightHand(Card[] hand) {
+	
+	public static Card[] findStraightHand(Card[] hand) {
 
 
 		hand = sortHand(hand);
