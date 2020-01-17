@@ -81,6 +81,10 @@ public class Player {
 		}
 	}
 
+	
+	/*
+	 * Creates the player object, and puts information into the gamelobby
+	 * */
 	public static void createPlayer(Object[] playerInfo, RemoteSpace gameLobby, BufferedReader input)
 			throws InterruptedException, NumberFormatException, IOException {
 		// send info to gameLobby space
@@ -90,6 +94,7 @@ public class Player {
 		System.out.println();
 		int userInput = Integer.parseInt(input.readLine());
 		Object[] t = { 0, 0 };
+		Object[] x = new Object[6];
 		gameLobby.put(player.getPlayerId(), // player id
 				player.getName(), // name
 				player.balance, // balance
@@ -122,6 +127,11 @@ public class Player {
 		this.balance = balance;
 	}
 
+	
+	/*
+	 * raisePot controls that the amount being raised with is legal, 
+	 * and changes the balance. 
+	 * */
 	public int raisePot(int raiseAmount) {
 		if (raiseAmount > 0 && raiseAmount <= getBalance()) {
 			setBalance(getBalance() - raiseAmount);
@@ -137,15 +147,15 @@ class turnHandler implements Runnable {
 	private RemoteSpace gameLobby;
 	private Player player;
 	private int userBet;
-
+	
+	// inorder to get input from player
 	BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 	@Override
 	public void run() {
 		while (true) {
 			try {
-				Object[] info = gameLobby.query(new ActualField(player.getPlayerId()), // Player
-																						// Id
+				Object[] info = gameLobby.query(new ActualField(player.getPlayerId()), // PlayerId
 						new ActualField(player.getName()), // player name
 						new FormalField(Integer.class), // players balance
 						new FormalField(Object.class), // first card
@@ -157,6 +167,12 @@ class turnHandler implements Runnable {
 				//raise check fold 
 				userBet =  Integer.parseInt(input.readLine());
 				
+				/*
+				 * put back to the gamelobby the raise fold check 
+				 * name and id new balance and cards.
+				 * 
+				 * */
+
 				gameLobby.put(
 						player.getPlayerId(), // playerid
 						player.getName(), 	// name
@@ -166,14 +182,7 @@ class turnHandler implements Runnable {
 						userBet		// check raise fold
 						);
 				
-				/*
-				 * put back to the gamelobby the raise fold check 
-				 * name and id new balance and cards.
-				 * 
-				 * */
 				 
-				
-				
 				
 				/*
 				 * List<Object[]> playerInfo = gameLobby.queryAll(new
@@ -247,4 +256,5 @@ class displayHandler implements Runnable {
 			System.out.println();
 		}
 	}
+
 }
