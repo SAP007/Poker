@@ -9,62 +9,93 @@ public class Rules {
 
 		// TODO: assign numerical value based on power of a hand
 		Card[] actualHand = new Card[5];
-		int cardPower = 0;
+		int handPower = 0;
 		
 		actualHand = HandFinder.findFlushHand(hand);
 				
 		//TODO: Straight Flush
 		
+		
+		//Check if 4 of a kind
 		actualHand = HandFinder.findMultOfAKind(hand, 4);
-		
-		System.out.println("act");
-		
 		
 		if (isValidHand(actualHand)) {
 			System.out.println("Four of a kind");
 			
-			cardPower = 800;
+			handPower = 800;
 			
 			//current tie-breaker is sum of hand, mahy not work for edge cases
-			cardPower += RulesAux.handSum(actualHand);
+			handPower += RulesAux.handSum(actualHand);
 			
-			return cardPower;
+			return handPower;
 			
 		}
 		
+		
+		//check if full house
 		actualHand = HandFinder.findFullHouse(hand);
 		
 		
 		if (isValidHand(actualHand)) {
 			System.out.println("Full House");
 			
-			cardPower = 700;
+			handPower = 700;
 			
 			
-			return cardPower;
+			return handPower;
 		}
 		
 		actualHand = HandFinder.findFlushHand(hand);
 
+		//check if flush
 		if (isValidHand(actualHand)) {
 			System.out.println("Flush");
 			
-			cardPower = 600;
+			handPower = 600;
 			
 			
-			return cardPower;
+			return handPower;
 		}
 		
+		//check if straight
 		actualHand = HandFinder.findStraightHand(hand);
 		
 		if (isValidHand(actualHand)) {
 			System.out.println("Straight");
-			cardPower = 500 + RulesAux.handSum(actualHand);
+			handPower = 500 + RulesAux.handSum(actualHand);
 			
-			return cardPower;
+			return handPower;
 		}
 		
-		return cardPower;
+		//check if 3 of a kind
+		actualHand = HandFinder.findMultOfAKind(hand, 3);
+		
+		if (isValidHand(actualHand)) {
+			
+			handPower = 400 + RulesAux.handSum(actualHand);
+			
+			System.out.println("3 of a kind, handPower: " + handPower);
+			
+			return handPower;			
+		}
+		
+		//TODO: two pairs
+		
+		
+		actualHand = HandFinder.findMultOfAKind(hand, 2);
+		
+		if (isValidHand(actualHand)) {
+			handPower = 200 + RulesAux.handSum(actualHand);
+			
+			System.out.println("one pair, handPower: " + handPower);
+			
+			return handPower;	
+		}
+		
+		
+		//TODO: high card
+		
+		return handPower;
 	}
 
 	
@@ -84,12 +115,12 @@ public class Rules {
 
 		Card[] hand = new Card[7];
 
-		hand[0] = new Card(Suit.CLUBS, 6);
-		hand[1] = new Card(Suit.HEARTS, 6);
-		hand[2] = new Card(Suit.CLUBS, 9);
-		hand[3] = new Card(Suit.SPADES, 6);
+		hand[0] = new Card(Suit.HEARTS, 8);
+		hand[1] = new Card(Suit.DIAMONDS, 4);
+		hand[2] = new Card(Suit.CLUBS, 3);
+		hand[3] = new Card(Suit.SPADES, 9);
 		hand[4] = new Card(Suit.CLUBS, 4);
-		hand[5] = new Card(Suit.CLUBS, 5);
+		hand[5] = new Card(Suit.HEARTS, 5);
 		hand[6] = new Card(Suit.CLUBS, 2);
 
 		Card[] actualHand = new Card[5];

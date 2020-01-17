@@ -18,8 +18,6 @@ public class HandFinder {
 	static Card[] findMultOfAKind(Card[] hand, int mult) {
 
 		Card[] actualHand = new Card[5];
-		
-		RulesAux.printHand(hand);
 
 		int[] multTracker = RulesAux.makeMultTracker(hand);
 		int bestVal = -1;
@@ -33,11 +31,14 @@ public class HandFinder {
 
 		}
 
+		//if no better value is found, return invalid hand
 		if (bestVal == -1)
 			return actualHand;
 
-		int remainder = 5 - mult;
-		int actualIndex = 4;
+		//indicates number of cards in hand that are not part of combo
+		int remainder = actualHand.length - mult;
+		
+		int actualIndex = actualHand.length - 1;
 		for (int i = hand.length - 1; i >= 0; i--) {
 			int currVal = hand[i].getNumber();
 			if (currVal == bestVal && actualIndex >= 0) {
