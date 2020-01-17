@@ -9,9 +9,8 @@ import org.jspace.RemoteSpace;
 
 public class Card {	
 
-	private Suit suit;
-	private int number;
-  
+	Suit suit;
+	int number;
 	public Card(){
 		String suit;
 		int value;
@@ -28,26 +27,6 @@ public class Card {
 	
 	public int getNumber() {
 		return number;
-	}
-  
-  public String toString() {
-		String suitChar;
-		// TODO: change suitChar to unicode for suits
-
-		if (suit == Suit.CLUBS)
-			suitChar = "clubs";
-
-		else if (suit == Suit.DIAMONDS)
-			suitChar = "diamonds";
-
-		else if (suit == Suit.HEARTS)
-			suitChar = "hearts";
-
-		else
-			suitChar = "spades";
-
-		return number + " of " + suitChar;
-
 	}
 	
 	
