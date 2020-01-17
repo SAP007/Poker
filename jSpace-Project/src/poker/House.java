@@ -262,8 +262,7 @@ public class House {
 			else {
 				lobby.put("wait"); //needs more stuff done to work properly. and to put players in loop
 			}
-			//test
-	}
+				}
 
 	public static String boardSpace(SpaceRepository spaceRepo, SequentialSpace board) {
 		// check if board exists 
