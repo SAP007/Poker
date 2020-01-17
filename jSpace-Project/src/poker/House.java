@@ -33,6 +33,8 @@ public class House {
 		System.out.println("deckSpace created");
 		createLobby(spaceRepo);
 		createBoard(spaceRepo, board);
+		createGame(spaceRepo, game);
+		turn(game, board, mainAr, deck, dealer);
 
 	}
 
@@ -75,6 +77,10 @@ public class House {
 
 	public static void createBoard(SpaceRepository spaceRepo, SequentialSpace board) {
 		spaceRepo.add("board", board);
+	}
+	
+	public static void createGame(SpaceRepository spaceRepo, SequentialSpace game) {
+		spaceRepo.add("game", game);
 	}
 
 	public void updateBoardAfterPlayerAction(Object[] playerActions, SequentialSpace board)
@@ -149,6 +155,8 @@ public class House {
 			}
 		}	
 	}
+	
+	
 	public void turn (SequentialSpace game, SequentialSpace board, int[] mainAr, RandomSpace deck, int dealer) throws InterruptedException {
 		Object[] playerBoard;
 		Array testarray;
