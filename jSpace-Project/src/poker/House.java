@@ -18,6 +18,7 @@ import org.jspace.FormalField;
 public class House {
 	private final static int BALANCE = 1000; 
 	private static int playerId = 0;
+	private static int dealer = 1;
 	private static int[] mainAr = {0,0,0,0,0,0,0};
 	public static void main(String[] args) throws InterruptedException {
 		SpaceRepository spaceRepo = new SpaceRepository();
@@ -136,48 +137,50 @@ public class House {
 	}
 
 	
-	public void givePlayerCards(RandomSpace deck, SequentialSpace game) throws InterruptedException {
-		for(int i = 1; i <= 7; i++) {
-			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående. ved at sætte id som x
-		Object[] playerInView = (Object[]) getPlayerInView(game, x); //Gets the player in question from the lobby
-		playerInView[3] = getCardFromDeck(deck); //gives the first card
-		playerInView[4] = getCardFromDeck(deck); //gives the second card
-		playerInView[5] = -2; //sets it to -2 so the player knows it needs to take the hand
-		game.put(playerInView); //returns the player to the game
+	public void givePlayerCards(RandomSpace deck, SequentialSpace game, int dealer) throws InterruptedException {
+		int playerTurn = dealer;
+		for(int i = 0; i <= 7; i++) {
+			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn); //gets the player in view from the gamespace
+				playerInView[3] = getCardFromDeck(deck); //gives the first card
+				playerInView[4] = getCardFromDeck(deck); //gives the second card
+				playerInView[5] = -2; //sets it to -2 so the player knows it needs to take the hand
+				game.put(playerInView); //returns the player to the game
+			}
 		}	
 	}
-	public void turn (SequentialSpace game, SequentialSpace board, int numberFromArray, RandomSpace deck) throws InterruptedException {
+	public void turn (SequentialSpace game, SequentialSpace board, int[] mainAr, RandomSpace deck, int dealer) throws InterruptedException {
 		Object[] playerBoard;
 		Array testarray;
-		givePlayerCards(deck, game); //gives the players their cards	
+		givePlayerCards(deck, game, dealer); //gives the players their cards	
 
-		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
 		
 		riverCards(deck, board);//deal river
 		
-		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
 		
 		turnCard(deck, board);//deal turn card
 		
-		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
 		
 		flopCard(deck, board);//deal flop card
 		
-		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
 		//find en vinder
 		//returner kort? eller bare discard dem, og lav et nyt deck?
 	}
 	
-	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer) {
-		
-		for(int i = 1; i <= 7; i++) {
-			
-			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående.
-			//skaf første spiller, den der er dealer. Står i arrayet.
-			//Derefter køres arrayet igennem med checkplayer action.
-			//der skal vær gang hentes spiller ned og ændre "raise" værdien til -2 så spilleren ved den skal gøre noget
-			
-			
+	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
+		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
+		for(int i = 0; i <= 7; i++) {
+			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				playerInView[5] = -2;
+				board.put(playerInView);
+				checkPlayerAction(game, board);
+			}
+			playerTurn = playerTurn + 1; //Changes the value to the next player
 		}
 	}
 	
@@ -301,11 +304,6 @@ public class House {
 		}
 		return ar;
 	}
-	
-	
-	
-	
-}
 
-	}	
+		
 }
