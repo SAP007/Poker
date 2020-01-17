@@ -142,21 +142,33 @@ public class House {
 		Object[] playerBoard;
 		Array testarray;
 		givePlayerCards(deck, game); //gives the players their cards	
-		//en tur foregår ved at give spillerne kort
-		//derefter checkes de alle for om de vil c/r/f (laves som enkelt metode, så den er nemmere at kalde igennem det hele)
-		//herefter deales river
-		//check for c/r/f
-		//deal turn kortet
-		//check for c/r/f
-		//deal floppet
-		//check for c/r/f
+
+		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		
+		riverCards(deck, board);//deal river
+		
+		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		
+		turnCard(deck, board);//deal turn card
+		
+		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
+		
+		flopCard(deck, board);//deal flop card
+		
+		checkRaiseFoldSequence(game, board, numberFromArray);//check for c/r/f
 		//find en vinder
 		//returner kort? eller bare discard dem, og lav et nyt deck?
 	}
 	
-	public void checkRaiseFoldSequence() {
+	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer) {
 		for(int i = 1; i <= 7; i++) {
 			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående.
+			//skaf første spiller, den der er dealer. Står i arrayet.
+			//Derefter køres arrayet igennem med checkplayer action.
+			//der skal vær gang hentes spiller ned og ændre "raise" værdien til -2 så spilleren ved den skal gøre noget
+			
+			
+		}
 	}
 	
 	public void checkPlayerAction(SequentialSpace game, SequentialSpace board) throws InterruptedException {
