@@ -306,3 +306,6 @@ public class House {
 	
 	
 }
+
+	}	
+}
