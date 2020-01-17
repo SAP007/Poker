@@ -7,17 +7,27 @@ public class HandFinder {
 	
 	
 	
+//	static Card[] findStraightFlush(Card[] hand) {
+//		
+//		Card[] actualHand = new Card[5];
+//		
+//		actualHand = findStraightHand(hand);
+//		
+//	}
+	
 	static Card[] findMultOfAKind(Card[] hand, int mult) {
 
 		Card[] actualHand = new Card[5];
+		
+		RulesAux.printHand(hand);
 
-		int[] multTracker = makeMultTracker(hand);
+		int[] multTracker = RulesAux.makeMultTracker(hand);
 		int bestVal = -1;
-
+		
 		for (int i = hand.length - 1; i >= 0; i--) {
 			int currMult = multTracker[i];
 			if (currMult >= mult) {
-				bestVal = hand[i].getNumber();
+				bestVal = i + 2;
 				break;
 			}
 
@@ -27,15 +37,15 @@ public class HandFinder {
 			return actualHand;
 
 		int remainder = 5 - mult;
-		int actualIndex = 0;
+		int actualIndex = 4;
 		for (int i = hand.length - 1; i >= 0; i--) {
 			int currVal = hand[i].getNumber();
-			if (currVal == bestVal && actualIndex < 5) {
+			if (currVal == bestVal && actualIndex >= 0) {
 				actualHand[actualIndex] = hand[i];
-				actualIndex++;
-			} else if (remainder > 0 && actualIndex < 5) {
+				actualIndex--;
+			} else if (remainder > 0 && actualIndex >= 0) {
 				actualHand[actualIndex] = hand[i];
-				actualIndex++;
+				actualIndex--;
 				remainder--;
 			}
 
@@ -64,7 +74,7 @@ public class HandFinder {
 		Card currCard;
 
 		// return false if one suit does not match
-		for (int i = 1; i < HANDSIZE; i++) {
+		for (int i = 0; i < HANDSIZE; i++) {
 
 			currCard = hand[i];
 
@@ -123,6 +133,7 @@ public class HandFinder {
 
 		}
 
+		
 		if (numOfClubs >= 5) {
 			actualHand = clubHand;
 		} else if (numOfDiamonds >= 5) {
@@ -146,9 +157,9 @@ public class HandFinder {
 		int[] multTracker = new int[12];
 		Card[] actualHand = new Card[5];
 		
-		hand = sortHand(hand);
+		hand = RulesAux.sortHand(hand);
 		
-		multTracker = makeMultTracker(hand);
+		multTracker = RulesAux.makeMultTracker(hand);
 		
 		boolean tripFound = false;
 		// find triplet
@@ -169,7 +180,6 @@ public class HandFinder {
 		for (int i = 6; i >= 0; i--) {
 			
 			Card card = hand[i];
-			System.out.println("cardNum: " + card.getNumber() + ", pair: " + pair);
 			
 			if ((card.getNumber() == pair || card.getNumber() == triplet) && actualIndex < 5) {
 				actualHand[actualIndex] = card;
@@ -182,23 +192,12 @@ public class HandFinder {
 
 	}
 	
-	static int[] makeMultTracker(Card[] hand) {
-		int[] multTracker = new int[12];
-		hand = sortHand(hand);
-		
-		for (Card card : hand) {
-			multTracker[card.getNumber() - 2] = multTracker[card.getNumber() - 2] + 1;
-		}
-		
-		return multTracker;
-	}
-	
 	
 	
 	public static Card[] findStraightHand(Card[] hand) {
 
 
-		hand = sortHand(hand);
+		hand = RulesAux.sortHand(hand);
 
 		// currently considered number
 		int currNum = hand[0].getNumber();
@@ -235,17 +234,7 @@ public class HandFinder {
 
 		}
 
-		for (int j = 0; j < 5; j++) {
-			Card card = actualHand[j];
-			if (card != null)
-				System.out.print(actualHand[j].toString() + ", ");
-
-		}
-		System.out.println();
-
 		return actualHand;
-
-		// return consNums >= 5;
 
 	}
 	
@@ -275,40 +264,6 @@ public class HandFinder {
 		}
 
 		return actualHand;
-	}
-	
-	
-	
-	
-	
-	// from https://java2blog.com/shell-sort-in-java/
-	static Card[] sortHand(Card[] hand) {
-
-		// first part uses the Knuth's interval sequence
-		int h = 1;
-		while (h <= hand.length / 3) {
-			h = 3 * h + 1; // h is equal to highest sequence of h<=length/3
-			// (1,4,13,40...)
-		}
-
-		// next part
-		while (h > 0) { // for array of length 10, h=4
-
-			// This step is similar to insertion sort below
-			for (int i = 0; i < hand.length; i++) {
-
-				Card tempCard = hand[i];
-				int tempInt = hand[i].getNumber();
-				int j;
-
-				for (j = i; j > h - 1 && hand[j - h].getNumber() >= tempInt; j = j - h) {
-					hand[j] = hand[j - h];
-				}
-				hand[j] = tempCard;
-			}
-			h = (h - 1) / 3;
-		}
-		return hand;
 	}
 	
 }
