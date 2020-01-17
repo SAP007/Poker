@@ -302,10 +302,4 @@ public class House {
 		return ar;
 	}
 	
-	
-	
-	
-}
-
-	}	
 }
