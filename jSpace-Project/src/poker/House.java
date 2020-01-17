@@ -68,10 +68,6 @@ public class House {
 					new FormalField(Integer.class) // bet
 			);
 			lobby.put(t[1], t[3]);
-
-//			System.out.println(
-//					"player id: " + t[0] + ": name: " + t[1] + " balance: " + t[2] + "$" + " bet " + t[3] + "$");
-//			System.out.println("done");
 		}
 	}
 
@@ -140,7 +136,6 @@ public class House {
 
 	
 	public void givePlayerCards(RandomSpace deck, SequentialSpace game) throws InterruptedException {
-		
 		for(int i = 1; i <= 7; i++) {
 			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående. ved at sætte id som x
 		Object[] playerInView = (Object[]) getPlayerInView(game, x); //Gets the player in question from the lobby
@@ -173,7 +168,9 @@ public class House {
 	}
 	
 	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer) {
+		
 		for(int i = 1; i <= 7; i++) {
+			
 			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående.
 			//skaf første spiller, den der er dealer. Står i arrayet.
 			//Derefter køres arrayet igennem med checkplayer action.
@@ -254,12 +251,11 @@ public class House {
 		return playerOnBoard;
 	}
 	
-}
 
 	public static boolean canJoin(SequentialSpace lobby,SpaceRepository spaceRepo, SequentialSpace game,SequentialSpace board) throws InterruptedException {
 		playerId = playerId + 1;
 		List<Object[]> players = lobby.queryAll(new ActualField("join"), new FormalField(String.class));
-		if (players.size() < 4 && players.size() > -1) {
+		if (players.size() < 7 && players.size() > -1) {
 
 			lobby.put(playerId, players.get(1), BALANCE, gameSpace(spaceRepo, game),boardSpace(spaceRepo, board) );
 		} else {
@@ -281,5 +277,32 @@ public class House {
 		spaceRepo.add("game", game);
 		String gameUrl = "tcp://localhost:9003/game?keep";
 		return gameUrl;
-	}	
+	}
+	
+	// fills the seats.
+	public static int[] fillSeats(int[] ar){
+		for(int i = 0; i < 7; ){
+			if(ar[i] == 0){
+				ar[i] =  playerId; // needs to be changed to accommodate changes to the overall code.
+				i=7;
+			}
+		}		
+		return ar;
+	}
+		
+	// takes the seats and rotates them by one
+	
+	public static int[] rotateLeft(int[] ar){
+		int temp;
+		for(int i = 0; i< ar.length-1; i++){
+			temp = ar[i];
+			ar[i] = ar[i+1];
+			ar[i+1] = temp;
+		}
+		return ar;
+	}
+	
+	
+	
+	
 }
