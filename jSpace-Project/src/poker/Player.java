@@ -247,5 +247,4 @@ class displayHandler implements Runnable {
 			System.out.println();
 		}
 	}
-
 }
