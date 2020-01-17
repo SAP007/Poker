@@ -7,6 +7,7 @@ import org.jspace.SpaceRepository;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.jspace.ActualField;
 import org.jspace.FormalField;
@@ -15,13 +16,15 @@ import org.jspace.FormalField;
 //import java.io.InputStreamReader;
 
 public class House {
-
+	private final static int BALANCE = 1000; 
+	private static int playerId = 0;
 	public static void main(String[] args) throws InterruptedException {
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
 		SequentialSpace board = new SequentialSpace();
 		SequentialSpace game = new SequentialSpace();
 		
+
 		spaceRepo(spaceRepo);
 		System.out.println("SpaceRepo created");
 		deckSpace(spaceRepo, deck);
@@ -32,9 +35,10 @@ public class House {
 	}
 
 	public static void spaceRepo(SpaceRepository spaceRepo) {
-		// Set the URI of the chat space
+		// Set the URI of the spaceRepo
 		String url = "tcp://localhost:9003/?keep";
-
+		
+		
 		// Open a gate
 		spaceRepo.addGate("tcp://localhost:9003/?keep");
 		System.out.println("Space repository opened at: " + url + "...");
@@ -42,7 +46,6 @@ public class House {
 	}
 
 	public static void deckSpace(SpaceRepository spaceRepo, RandomSpace deck) {
-
 		spaceRepo.add("deck", deck);
 	}
 
@@ -50,39 +53,47 @@ public class House {
 
 		// creates a lobby for players
 		SequentialSpace lobby = new SequentialSpace();
+
 		// Add the space to the repository
 		spaceRepo.add("lobby", lobby);
 
 		while (true) {
-			System.out.println("get from client");
-			Object[] t = lobby.get(new FormalField(String.class), new FormalField(Integer.class),
-					new FormalField(Integer.class), new FormalField(Integer.class));
-			lobby.put(t[0], t[3]);
+			canJoin(lobby, spaceRepo, lobby, lobby);
 
-			System.out.println(t[0] + ": Balance: " + t[1] + " playerId: " + t[2] + "bet: " + t[3]);
-			System.out.println("done");
+//			System.out.println("get from client");
+			Object[] t = lobby.get(
+					new FormalField(Integer.class), // playerID
+					new FormalField(String.class), // name
+					new FormalField(Integer.class), // balance
+					new FormalField(Integer.class) // bet
+			);
+			lobby.put(t[1], t[3]);
+
+//			System.out.println(
+//					"player id: " + t[0] + ": name: " + t[1] + " balance: " + t[2] + "$" + " bet " + t[3] + "$");
+//			System.out.println("done");
 		}
-
 	}
-	
+
 	public static void createBoard(SpaceRepository spaceRepo, SequentialSpace board) {
 		spaceRepo.add("board", board);
 	}
-	
-	public void updateBoardAfterPlayerAction(Object[] playerActions, SequentialSpace board) throws InterruptedException {
-		board.put(playerActions[0],  	//ID
-				playerActions[1], 	 	//NAME
-				playerActions[2], 		//Balance
-				playerActions[3], 		//Kort 1
-				playerActions[4],		//Kort 2
-				playerActions[5]);		//Check/raise/fold
+
+	public void updateBoardAfterPlayerAction(Object[] playerActions, SequentialSpace board)
+			throws InterruptedException {
+		board.put(playerActions[0], // ID
+				playerActions[1], // NAME
+				playerActions[2], // Balance
+				playerActions[3], // Card 1
+				playerActions[4], // Card 2
+				playerActions[5]); // Check/raise/fold
 	}
-	
+
 	public Object[] getCardFromDeck(RandomSpace deck) throws InterruptedException {
 		Object[] card = deck.get(new FormalField(Integer.class), new FormalField(Integer.class));
 		return card;
 	}
-	
+
 	public void returnCardToDeck(RandomSpace deck, Object[] ts) throws InterruptedException {
 		deck.put(ts);
 	}
@@ -121,16 +132,17 @@ public class House {
 		t[4] = getCardFromDeck(deck);
 		board.put(t);
 	}
-	
+
 	public void burnCard(RandomSpace deck) throws InterruptedException {
 		Object[] ts = getCardFromDeck(deck);
 		returnCardToDeck(deck, ts);
 	}
+
 	
 	public void givePlayerCards(RandomSpace deck, SequentialSpace game) throws InterruptedException {
 		
 		for(int i = 1; i <= 7; i++) {
-			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående. ved at sætte id som x
+			//indsÃ¦tte if statement der tjekker om vÃ¦rdien i arrayet er 0 eller et id og sÃ¥ udfÃ¸re nedenstÃ¥ende. ved at sÃ¦tte id som x
 		Object[] playerInView = (Object[]) getPlayerInView(game, x); //Gets the player in question from the lobby
 		playerInView[3] = getCardFromDeck(deck); //gives the first card
 		playerInView[4] = getCardFromDeck(deck); //gives the second card
@@ -162,10 +174,10 @@ public class House {
 	
 	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer) {
 		for(int i = 1; i <= 7; i++) {
-			//indsætte if statement der tjekker om værdien i arrayet er 0 eller et id og så udføre nedenstående.
-			//skaf første spiller, den der er dealer. Står i arrayet.
-			//Derefter køres arrayet igennem med checkplayer action.
-			//der skal vær gang hentes spiller ned og ændre "raise" værdien til -2 så spilleren ved den skal gøre noget
+			//indsÃ¦tte if statement der tjekker om vÃ¦rdien i arrayet er 0 eller et id og sÃ¥ udfÃ¸re nedenstÃ¥ende.
+			//skaf fÃ¸rste spiller, den der er dealer. StÃ¥r i arrayet.
+			//Derefter kÃ¸res arrayet igennem med checkplayer action.
+			//der skal vÃ¦r gang hentes spiller ned og Ã¦ndre "raise" vÃ¦rdien til -2 sÃ¥ spilleren ved den skal gÃ¸re noget
 			
 			
 		}
@@ -198,8 +210,8 @@ public class House {
 		//raise > 0
 		//Giv tur til spiller = -2
 		//Efter spiller er behandlet = -3
-		//Bør være  et sequential space eller et array, hvor spillere kan fjernes fra hvis de ikke længere er tilstede.
-		//der kan derefter laves et forloop og køre igennem hvem der er dealer, alt efter turene.
+		//BÃ¸r vÃ¦re  et sequential space eller et array, hvor spillere kan fjernes fra hvis de ikke lÃ¦ngere er tilstede.
+		//der kan derefter laves et forloop og kÃ¸re igennem hvem der er dealer, alt efter turene.
 	}
 	
 	public Object getBoard(SequentialSpace board) throws InterruptedException {
@@ -244,4 +256,30 @@ public class House {
 	
 }
 
+	public static boolean canJoin(SequentialSpace lobby,SpaceRepository spaceRepo, SequentialSpace game,SequentialSpace board) throws InterruptedException {
+		playerId = playerId + 1;
+		List<Object[]> players = lobby.queryAll(new ActualField("join"), new FormalField(String.class));
+		if (players.size() < 4 && players.size() > -1) {
 
+			lobby.put(playerId, players.get(1), BALANCE, gameSpace(spaceRepo, game),boardSpace(spaceRepo, board) );
+		} else {
+			lobby.put("declined");
+		}
+
+		return false;
+	}
+
+	public static String boardSpace(SpaceRepository spaceRepo, SequentialSpace board) {
+		// check if board exists 
+		spaceRepo.add("board", board);
+		String boardUrl = "tcp://localhost:9003/board?keep";
+		return boardUrl;
+	}
+
+	public static String gameSpace(SpaceRepository spaceRepo, SequentialSpace game) {
+		// check if board exists 
+		spaceRepo.add("game", game);
+		String gameUrl = "tcp://localhost:9003/game?keep";
+		return gameUrl;
+	}	
+}
