@@ -21,6 +21,7 @@ public class House {
 	private static int dealer = 1;
 	private static int[] mainAr = {0,0,0,0,0,0,0};
 	public static void main(String[] args) throws InterruptedException {
+		House house = new House();
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
 		SequentialSpace board = new SequentialSpace();
@@ -31,10 +32,13 @@ public class House {
 		System.out.println("SpaceRepo created");
 		deckSpace(spaceRepo, deck);
 		System.out.println("deckSpace created");
-		createLobby(spaceRepo);
 		createBoard(spaceRepo, board);
+		System.out.println("board created");
 		createGame(spaceRepo, game);
-		turn(game, board, mainAr, deck, dealer);
+		System.out.println("game created");
+		createLobby(spaceRepo, game, board);
+		System.out.println("lobby created created");
+		house.turn(game, board, mainAr, deck, dealer);
 
 	}
 
@@ -53,7 +57,7 @@ public class House {
 		spaceRepo.add("deck", deck);
 	}
 
-	public static void createLobby(SpaceRepository spaceRepo) throws InterruptedException {
+	public static void createLobby(SpaceRepository spaceRepo, SequentialSpace game, SequentialSpace board) throws InterruptedException {
 
 		// creates a lobby for players
 		SequentialSpace lobby = new SequentialSpace();
@@ -62,16 +66,7 @@ public class House {
 		spaceRepo.add("lobby", lobby);
 
 		while (true) {
-			canJoin(lobby, spaceRepo, lobby, lobby, mainAr);
-
-//			System.out.println("get from client");
-			Object[] t = lobby.get(
-					new FormalField(Integer.class), // playerID
-					new FormalField(String.class), // name
-					new FormalField(Integer.class), // balance
-					new FormalField(Integer.class) // bet
-			);
-			lobby.put(t[1], t[3]);
+			canJoin(lobby, spaceRepo, game, board, mainAr);
 		}
 	}
 
@@ -265,26 +260,31 @@ public class House {
 	
 
 	public static void canJoin(SequentialSpace lobby,SpaceRepository spaceRepo, SequentialSpace game,SequentialSpace board, int[] mainAr) throws InterruptedException {
+	System.out.println("here");
+	
+	while(lobby.size() <= 0 )
+	{
+	}
+	System.out.println(lobby.size());
 		Object[] players = lobby.get(new ActualField("join"), new FormalField(String.class));
 			playerId = fillSeats(mainAr);
 			if(playerId > 0){
 				lobby.put(playerId, players[1], BALANCE, gameSpace(spaceRepo, game),boardSpace(spaceRepo, board));
 			}
 			else {
+				System.out.println("noooo");
 				lobby.put("wait"); //needs more stuff done to work properly. and to put players in loop
 			}
 				}
 
 	public static String boardSpace(SpaceRepository spaceRepo, SequentialSpace board) {
 		// check if board exists 
-		spaceRepo.add("board", board);
 		String boardUrl = "tcp://localhost:9003/board?keep";
 		return boardUrl;
 	}
 
 	public static String gameSpace(SpaceRepository spaceRepo, SequentialSpace game) {
 		// check if board exists 
-		spaceRepo.add("game", game);
 		String gameUrl = "tcp://localhost:9003/game?keep";
 		return gameUrl;
 	}
@@ -295,7 +295,7 @@ public class House {
 		for(int i = 0; i < 7; ){
 			if(ar[i] == 0){
 				ar[i] =  i+1; // needs to be changed to accommodate changes to the overall code.
-				place = i;
+				place = ar[i];
 				i=7;
 			}
 		}
