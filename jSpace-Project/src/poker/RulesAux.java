@@ -120,6 +120,7 @@ public class RulesAux {
 			if (c == null) System.out.print("null, ");
 			else System.out.print(c.toString() + ", ");
 		}
+		System.out.println();
 		
 	}
 

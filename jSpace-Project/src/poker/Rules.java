@@ -60,6 +60,7 @@ public class Rules {
 		//check if straight
 		actualHand = HandFinder.findStraightHand(hand);
 		
+		
 		if (isValidHand(actualHand)) {
 			System.out.println("Straight");
 			handPower = 500 + RulesAux.handSum(actualHand);
@@ -79,7 +80,15 @@ public class Rules {
 			return handPower;			
 		}
 		
-		//TODO: two pairs
+		actualHand = HandFinder.findTwoPairs(hand);
+		
+		if (isValidHand(actualHand)) {
+			handPower = 300 + RulesAux.handSum(actualHand);
+			
+			System.out.println("two pairs, handPower: " + handPower);
+			
+			return handPower;	
+		}
 		
 		
 		actualHand = HandFinder.findMultOfAKind(hand, 2);
@@ -116,69 +125,18 @@ public class Rules {
 		Card[] hand = new Card[7];
 
 		hand[0] = new Card(Suit.HEARTS, 8);
-		hand[1] = new Card(Suit.DIAMONDS, 4);
+		hand[1] = new Card(Suit.DIAMONDS, 5);
 		hand[2] = new Card(Suit.CLUBS, 3);
 		hand[3] = new Card(Suit.SPADES, 9);
 		hand[4] = new Card(Suit.CLUBS, 4);
-		hand[5] = new Card(Suit.HEARTS, 5);
+		hand[5] = new Card(Suit.HEARTS, 2);
 		hand[6] = new Card(Suit.CLUBS, 2);
 
 		Card[] actualHand = new Card[5];
-
-//		actualHand = HandFinder.findMultOfAKind(hand, 4);
-//		for (Card card : actualHand) {
-//			if (Rules.isValidHand(actualHand))
-//				System.out.print(card.toString() + ", ");
-//		}
-//		System.out.println();
-//
-//		actualHand = HandFinder.findMultOfAKind(hand, 3);
-//		for (Card card : actualHand) {
-//			if (Rules.isValidHand(actualHand))
-//				System.out.print(card.toString() + ", ");
-//		}
-//		System.out.println();
-//
-//		actualHand = HandFinder.findMultOfAKind(hand, 2);
-//		for (Card card : actualHand) {
-//			if (Rules.isValidHand(actualHand))
-//				System.out.print(card.toString() + ", ");
-//		}
-//		System.out.println();
 		
 		findHandPower(hand);
 		
 		
-//		Card[] hand = new Card[HANDSIZE];
-//
-//		for (int i = 2; i < HANDSIZE; i++) {
-//			hand[i] = new Card(Suit.suitFromInt(i % 4), 4);
-//		}
-//		hand[0] = new Card(Suit.HEARTS, 2);
-//		hand[1] = new Card(Suit.CLUBS, 2);
-//		hand[2] = new Card(Suit.SPADES, 5);
-//
-//		System.out.println(isValidHand(HandFinder.findFlushHand(hand)));
-//
-//		System.out.println("Fullhouse: " + isValidHand(HandFinder.findFullHouse(hand)));
-//
-//		int mult = 0;
-//
-//		mult = multOfAKind(hand);
-//
-//		if (mult == 2) {
-//			System.out.println("is pair");
-//		} else if (mult == 3) {
-//			System.out.println("three of a kind");
-//		}
-//
-//		else if (mult == 4) {
-//			System.out.println("four of a kind");
-//		}
-//
-//		else {
-//			System.out.println("one of a kind");
-//		}
 	}
 
 }

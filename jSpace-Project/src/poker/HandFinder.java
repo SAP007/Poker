@@ -15,6 +15,53 @@ public class HandFinder {
 //		
 //	}
 	
+	static Card[] findTwoPairs(Card[] hand) {
+		
+		Card[] actualHand = new Card[5];
+		hand = RulesAux.sortHand(hand);
+		
+		boolean kickerFound = false;
+		
+		int pairVal = -1;
+		int pairsFound = 0;
+		int actualIndex = 0;
+		
+		Card currCard = hand[hand.length - 1];
+		
+		for (int i = hand.length - 2; i >= 0; i--) {
+			Card nextCard = hand[i];
+			
+			int currVal = currCard.getNumber();
+			int nextVal = nextCard.getNumber();
+			
+			/*currCard and nextCard are equal, save them as pair and exclude that 
+			 * value from being classified as pair later
+			 */
+			if (currVal == nextVal && currVal != pairVal && actualIndex < 5 && pairsFound < 2) {
+				actualHand[actualIndex] = currCard;
+				actualHand[actualIndex + 1] = nextCard;
+				
+				pairVal = currVal;
+				actualIndex += 2;
+				pairsFound++;
+				
+			}
+			/* for two pairs there is room for one kicker,
+			 * first one found will be the highest and is saved
+			 */
+			else if (!kickerFound && actualIndex < 5) {
+				actualHand[actualIndex] = currCard;
+				actualIndex++;
+				kickerFound = true;
+			}
+			currCard = nextCard;
+			
+		}
+		
+		return actualHand;
+		
+	}
+	
 	static Card[] findMultOfAKind(Card[] hand, int mult) {
 
 		Card[] actualHand = new Card[5];
