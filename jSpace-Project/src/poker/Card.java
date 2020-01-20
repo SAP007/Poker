@@ -35,18 +35,18 @@ public class Card {
 		// TODO: change suitChar to unicode for suits
 
 		if (suit == Suit.CLUBS)
-			suitChar = "clubs";
+			suitChar = "\u2663";
 
 		else if (suit == Suit.DIAMONDS)
-			suitChar = "diamonds";
+			suitChar = "\u2662";
 
 		else if (suit == Suit.HEARTS)
-			suitChar = "hearts";
+			suitChar = "\u2661";
 
 		else
-			suitChar = "spades";
+			suitChar = "\u2660";
 
-		return number + " of " + suitChar;
+		return "[ " + number + suitChar + " ]";
 
 	}
 	

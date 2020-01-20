@@ -41,7 +41,7 @@ public class RulesAux {
 	}
 
 	static int[] makeMultTracker(Card[] hand) {
-		int[] multTracker = new int[12];
+		int[] multTracker = new int[13];
 		hand = sortHand(hand);
 
 		for (Card card : hand) {
@@ -117,8 +117,8 @@ public class RulesAux {
 	static void printHand(Card[] hand) {
 		
 		for (Card c : hand) {
-			if (c == null) System.out.print("null, ");
-			else System.out.print(c.toString() + ", ");
+			if (c == null) System.out.print("[ null ]");
+			else System.out.print(c.toString());
 		}
 		System.out.println();
 		

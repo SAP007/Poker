@@ -22,7 +22,7 @@ public class Rules {
 		if (isValidHand(actualHand)) {
 			System.out.println("Four of a kind");
 			
-			handPower = 800;
+			handPower = 8000;
 			
 			//current tie-breaker is sum of hand, mahy not work for edge cases
 			handPower += RulesAux.handSum(actualHand);
@@ -39,7 +39,7 @@ public class Rules {
 		if (isValidHand(actualHand)) {
 			System.out.println("Full House");
 			
-			handPower = 700;
+			handPower = 7000;
 			
 			
 			return handPower;
@@ -51,7 +51,7 @@ public class Rules {
 		if (isValidHand(actualHand)) {
 			System.out.println("Flush");
 			
-			handPower = 600;
+			handPower = 6000;
 			
 			
 			return handPower;
@@ -63,7 +63,7 @@ public class Rules {
 		
 		if (isValidHand(actualHand)) {
 			System.out.println("Straight");
-			handPower = 500 + RulesAux.handSum(actualHand);
+			handPower = 5000 + RulesAux.handSum(actualHand);
 			
 			return handPower;
 		}
@@ -73,7 +73,7 @@ public class Rules {
 		
 		if (isValidHand(actualHand)) {
 			
-			handPower = 400 + RulesAux.handSum(actualHand);
+			handPower = 4000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("3 of a kind, handPower: " + handPower);
 			
@@ -83,7 +83,7 @@ public class Rules {
 		actualHand = HandFinder.findTwoPairs(hand);
 		
 		if (isValidHand(actualHand)) {
-			handPower = 300 + RulesAux.handSum(actualHand);
+			handPower = 3000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("two pairs, handPower: " + handPower);
 			
@@ -93,18 +93,25 @@ public class Rules {
 		
 		actualHand = HandFinder.findMultOfAKind(hand, 2);
 		
+	RulesAux.printHand(hand);
+		
 		if (isValidHand(actualHand)) {
-			handPower = 200 + RulesAux.handSum(actualHand);
+			handPower = 2000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("one pair, handPower: " + handPower);
 			
 			return handPower;	
 		}
 		
-		
-		//TODO: high card
-		
-		return handPower;
+		else {
+			
+			handPower = HandFinder.findHighCard(hand);
+			
+			System.out.println("High card, handpower: " + handPower);
+			
+			return handPower;
+		}
+
 	}
 
 	
@@ -124,13 +131,21 @@ public class Rules {
 
 		Card[] hand = new Card[7];
 
-		hand[0] = new Card(Suit.HEARTS, 8);
-		hand[1] = new Card(Suit.DIAMONDS, 5);
-		hand[2] = new Card(Suit.CLUBS, 3);
-		hand[3] = new Card(Suit.SPADES, 9);
-		hand[4] = new Card(Suit.CLUBS, 4);
+//		hand[0] = new Card(Suit.HEARTS, 14);
+//		hand[1] = new Card(Suit.DIAMONDS, 7);
+//		hand[2] = new Card(Suit.CLUBS, 9);
+//		hand[3] = new Card(Suit.SPADES, 10);
+//		hand[4] = new Card(Suit.CLUBS, 11);
+//		hand[5] = new Card(Suit.HEARTS, 12);
+//		hand[6] = new Card(Suit.CLUBS, 6);
+		
+		hand[0] = new Card(Suit.HEARTS, 7);
+		hand[1] = new Card(Suit.DIAMONDS, 6);
+		hand[2] = new Card(Suit.CLUBS, 5);
+		hand[3] = new Card(Suit.SPADES, 4);
+		hand[4] = new Card(Suit.CLUBS, 3);
 		hand[5] = new Card(Suit.HEARTS, 2);
-		hand[6] = new Card(Suit.CLUBS, 2);
+		hand[6] = new Card(Suit.CLUBS, 8);
 
 		Card[] actualHand = new Card[5];
 		

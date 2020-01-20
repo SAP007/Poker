@@ -314,5 +314,19 @@ public class HandFinder {
 
 		return actualHand;
 	}
+
+	public static int findHighCard(Card[] hand) {
+		
+		hand = RulesAux.sortHand(hand);
+		int sum = 0;
+		
+		for (int i = hand.length - 1; i > 1; i--) {
+			sum = sum + (hand[i].getNumber() * i * 2);
+		}
+		
+		
+		
+		return sum;
+	}
 	
 }
