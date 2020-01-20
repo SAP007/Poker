@@ -147,6 +147,27 @@ public class Player {
 			return raiseAmount;
 		}
 	}
+	public static void waitforTurn(Player player, Object[] playerInfo, BufferedReader input, RemoteSpace gameLobby)
+			throws InterruptedException, NumberFormatException, IOException {
+		while((int) playerInfo[5] != -2) {
+			
+		}
+		if ((int) playerInfo[5] == 2) {
+			// raise check fold
+			int userBet = Integer.parseInt(input.readLine());
+			
+			//  put back to the gamelobby the raise fold check name and id new
+			// balance and cards.
+			 
+			gameLobby.put(player.getPlayerId(), // playerid
+					player.getName(), // name
+					player.getBalance(), // balance
+					playerInfo[3], // fisrt card
+					playerInfo[4], // second card
+					userBet // check raise fold
+			);
+		}
+	}
 }
 
 class turnHandler implements Runnable {
