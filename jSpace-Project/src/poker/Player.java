@@ -9,6 +9,7 @@ import org.jspace.Tuple;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
@@ -18,12 +19,18 @@ public class Player {
 	private int balance;
 	private String name;
 	private int playerId;
+	private Object[] x1;
+	private Object[] x2;
+	private static int state;
 
 	// Constructor
-	public Player(int playerId, String name, int balance) {
+	public Player(int playerId, String name, int balance, Object[] card1, Object[] card2, int state) {
 		this.playerId = playerId;
 		this.name = name;
 		this.balance = balance;
+		this.x1 = card1;
+		this.x2 = card2;
+		this.state = state;
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -64,16 +71,22 @@ public class Player {
 			RemoteSpace boardLobby = new RemoteSpace((String) playerinfo[4]);
 
 			// Keep sending username and call, raise fold
-			System.out.println("make a bet...");
-			while (true) {
-				int bet = Integer.parseInt(input.readLine());
-				// (id, name, balance, card1, card2, rcf )
-
-				createPlayer(playerinfo, gameLobby, input);
-
-				new Thread(new displayHandler(uri)).start();
-
-			}
+			//System.out.println("make a bet...");
+			System.out.println("før player");
+			Player player = createPlayer(playerinfo, gameLobby, input);
+			System.out.println("efter player");
+			new Thread(new turnHandler(player, gameLobby)).start();
+//			while (true) {
+//			//	int bet = Integer.parseInt(input.readLine());
+//				// (id, name, balance, card1, card2, rcf )
+//				
+//				waitforTurn(player, input, gameLobby);
+//				System.out.println("efter vent for tur");
+//				Thread.sleep(600);
+//
+//				//new Thread(new displayHandler(uri)).start();
+//
+//			}
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -89,24 +102,29 @@ public class Player {
 	/*
 	 * Creates the player object, and puts information into the gamelobby
 	 * */
-	public static void createPlayer(Object[] playerInfo, RemoteSpace gameLobby, BufferedReader input)
+	public static Player createPlayer(Object[] playerInfo, RemoteSpace gameLobby, BufferedReader input)
 			throws InterruptedException, NumberFormatException, IOException {
 		// send info to gameLobby space
 		// userinput for check raise fold
-
-		Player player = new Player((int) playerInfo[0], (String) playerInfo[1], (int) playerInfo[2]);
+		System.out.println("Sut 1");
+		Player player = new Player((int) playerInfo[0], (String) playerInfo[1], (int) playerInfo[2], (Object[]) null, (Object[]) null, (int) state);
+		System.out.println("Sut 2");
 		
-		
-		System.out.println();
-		
-		int userInput = Integer.parseInt(input.readLine());
 		Object[] t = { 0, 0 };
-		gameLobby.put(player.getPlayerId(), // player id
-				player.getName(), // name
-				player.balance, // balance
-				t[0], // empty card
-				t[1], // empty card
-				-1); // check raise fold
+		System.out.println("Sut 3");
+		player.playerId = (int) playerInfo[0];
+		System.out.println("Sut 4");
+		player.name = (String) playerInfo[1];
+		System.out.println("Sut 5");
+		player.x1 = t;
+		player.x2 = t;
+		player.balance = 5000;
+		System.out.println("Sut 6");
+		player.state = -1;
+		System.out.println("Sut 7");
+		gameLobby.put(player.playerId, player.name, player.balance, player.x1, player.x2, player.state); // check raise fold
+		System.out.println("Sut 8");
+		return player;
 	}
 
 	public int getPlayerId() {
@@ -147,25 +165,22 @@ public class Player {
 			return raiseAmount;
 		}
 	}
-	public static void waitforTurn(Player player, Object[] playerInfo, BufferedReader input, RemoteSpace gameLobby)
+	public static void waitforTurn(Player player, BufferedReader input, RemoteSpace gameLobby)
 			throws InterruptedException, NumberFormatException, IOException {
-		while((int) playerInfo[5] != -2) {
-			
-		}
-		if ((int) playerInfo[5] == 2) {
+		Object[] playerinfo = gameLobby.get(new ActualField(player.getPlayerId()), // PlayerId
+				new ActualField(player.getName()), // player name
+				new FormalField(Integer.class), // players balance
+				new FormalField(Object.class), // first card
+				new FormalField(Object.class), // second card
+				new ActualField(-3) // Raise, check, Fold
+		);
+		
+			player.state = (int) playerinfo[5];
+		
+		if ((int) playerinfo[5] == -2) {
+			System.out.println("ÅH NEJ");
 			// raise check fold
-			int userBet = Integer.parseInt(input.readLine());
-			
-			//  put back to the gamelobby the raise fold check name and id new
-			// balance and cards.
-			 
-			gameLobby.put(player.getPlayerId(), // playerid
-					player.getName(), // name
-					player.getBalance(), // balance
-					playerInfo[3], // fisrt card
-					playerInfo[4], // second card
-					userBet // check raise fold
-			);
+
 		}
 	}
 }
@@ -178,36 +193,65 @@ class turnHandler implements Runnable {
 	// inorder to get input from player
 	BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
+	public turnHandler(Player player, RemoteSpace gameLobby) {
+		this.player = player;
+		this.gameLobby = gameLobby;
+	}
+	
 	@Override
 	public void run() {
+		System.out.println(player.getName());
+		Object[] info = null;
+
 		while (true) {
 			try {
-				Object[] info = gameLobby.query(new ActualField(player.getPlayerId()), // PlayerId
+				info = gameLobby.get(new ActualField(player.getPlayerId()), // PlayerId
 						new ActualField(player.getName()), // player name
 						new FormalField(Integer.class), // players balance
 						new FormalField(Object.class), // first card
 						new FormalField(Object.class), // second card
 						new ActualField(-2) // Raise, check, Fold
 				);
-				
-				
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		System.out.println("Spiller hentet");
+			System.out.println(info[1]);
+			System.out.println(info[5]);
 				//raise check fold 
-				userBet =  Integer.parseInt(input.readLine());
+				try {
+					System.out.println("Make a bet");
+					userBet =  Integer.parseInt(input.readLine());
+				} catch (NumberFormatException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 				/*
 				 * put back to the gamelobby the raise fold check 
 				 * name and id new balance and cards.
 				 * 
 				 * */
-
-				gameLobby.put(
-						player.getPlayerId(), // playerid
-						player.getName(), 	// name
-						player.getBalance(), // balance
-						info[3],	// fisrt card
-						info[4], 	// second card
-						userBet		// check raise fold
-						);
+				info[5] = userBet;
+				try {
+					System.out.println("putting player back");
+					gameLobby.put(
+							info[0], // playerid
+							info[1], 	// name
+							info[2], // balance
+							info[3],	// fisrt card
+							info[4], 	// second card
+							info[5]		// check raise fold
+							);
+					Thread.sleep(60);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 				 
 				
@@ -220,25 +264,16 @@ class turnHandler implements Runnable {
 				 * FormalField(Integer.class), // second card new
 				 * FormalField(Integer.class) // Raise, check, Fold );
 				 */
-
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+				System.out.println("Done with turn");
+			
 		}
 	}
 
+}	
 	
 	
 	
-	
-}
+
 
 class displayHandler implements Runnable {
 	private RemoteSpace lobby;

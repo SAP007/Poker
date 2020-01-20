@@ -42,6 +42,7 @@ public class House {
 		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
 		//ikke start før 2-3 er på bordet.
 		while(countPlayers(mainAr) < 3) {
+			System.out.println("Vente vente vente");
 		}
 		house.turn(game, board, mainAr, deck, dealer);
 
@@ -107,7 +108,7 @@ public class House {
 		t[0] = getCardFromDeck(deck);
 		t[1] = getCardFromDeck(deck);
 		t[2] = getCardFromDeck(deck);
-		board.put(t);
+//		board.put(t);
 	}
 	
 	public void turnCard(RandomSpace deck, SequentialSpace board) throws InterruptedException {
@@ -118,7 +119,7 @@ public class House {
 				new FormalField(Object.class), 
 				new FormalField(Object.class));
 		t[3] = getCardFromDeck(deck);
-		board.put(t);
+//		board.put(t);
 	}
 	
 	public void flopCard(RandomSpace deck, SequentialSpace board) throws InterruptedException {
@@ -129,7 +130,7 @@ public class House {
 				new FormalField(Object.class), 
 				new FormalField(Object.class));
 		t[4] = getCardFromDeck(deck);
-		board.put(t);
+//		board.put(t);
 	}
 
 	public void burnCard(RandomSpace deck) throws InterruptedException {
@@ -141,10 +142,12 @@ public class House {
 	public void givePlayerCards(RandomSpace deck, SequentialSpace game, int dealer) throws InterruptedException {
 		int playerTurn = dealer;
 		for(int i = 0; i < 7; i++) {
-			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+			if(mainAr[i] != 0){
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn); //gets the player in view from the gamespace
+				System.out.println("kort 1");
 				playerInView[3] = getCardFromDeck(deck); //gives the first card
 				playerInView[4] = getCardFromDeck(deck); //gives the second card
+				System.out.println("kort givet");
 				playerInView[5] = -2; //sets it to -2 so the player knows it needs to take the hand
 				game.put(playerInView); //returns the player to the game
 			}
@@ -155,21 +158,23 @@ public class House {
 	public void turn (SequentialSpace game, SequentialSpace board, int[] mainAr, RandomSpace deck, int dealer) throws InterruptedException {
 		Object[] playerBoard;
 		Array testarray;
+		System.out.println("Reset player");
 		resetPlayers(game, board, dealer, mainAr); //resets players on board.
+		System.out.println("Give some cards");
 		givePlayerCards(deck, game, dealer); //gives the players their cards	
-
+		System.out.println("CRF sequence");
 		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
-		
+		System.out.println("River card");
 		riverCards(deck, board);//deal river
-		
+		System.out.println("CRF sequence");
 		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
-		
+		System.out.println("Turn Card");
 		turnCard(deck, board);//deal turn card
-		
+		System.out.println("CRF sequence");
 		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
-		
+		System.out.println("Flop Card");
 		flopCard(deck, board);//deal flop card
-		
+		System.out.println("CRF sequence");
 		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
 		//find en vinder
 		//returner kort? eller bare discard dem, og lav et nyt deck?
@@ -181,7 +186,7 @@ public class House {
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
 				playerInView[5] = -3;
-				board.put(playerInView);
+				game.put(playerInView);
 			}
 			playerTurn = playerTurn + 1; //Changes the value to the next player
 		}
@@ -190,40 +195,67 @@ public class House {
 	
 	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
+		System.out.println("CRF sequence 1");
 		for(int i = 0; i < 7; i++) {
+			System.out.println("CRF sequence forloop");
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				System.out.println("CRF sequence if state");
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				System.out.println("CRF sequence playerview done");
 				if((int)playerInView[5] == -1) {
+					System.out.println("CRF sequence playerview break");
 					break;
 				}
+				System.out.println("CRF sequence player set to -2");
 				playerInView[5] = -2;
-				board.put(playerInView);
-				checkPlayerAction(game, board);
+				System.out.println("CRF sequence playerview put object back");
+				game.put(playerInView[0],
+						playerInView[1],
+						playerInView[2],
+						playerInView[3],
+						playerInView[4],
+						playerInView[5]);
+				Thread.sleep(60);
+				System.out.println("CRF sequence playerview wait for player action");
+
+				checkPlayerAction(game, board, playerTurn);
 			}
+			System.out.println("CRF sequence playerturn increment");
 			playerTurn = playerTurn + 1; //Changes the value to the next player
 		}
 	}
 	
-	public void checkPlayerAction(SequentialSpace game, SequentialSpace board) throws InterruptedException {
-		int numberFromArray = 0;
+	public void checkPlayerAction(SequentialSpace game, SequentialSpace board, int playerNumber) throws InterruptedException {
+		System.out.println("wait for player method");
 		Object[] playerInView;
+		System.out.println("wait for player method");
 		Object[] playerBoard;
-		Object[] waitingForPlayer = (Object[]) waitForPlayer(board, game, numberFromArray);
-		
+		System.out.println("wait for player method");
+		Object[] waitingForPlayer = (Object[]) waitForPlayer(game, playerNumber);
+		System.out.println(waitingForPlayer[5]);
 		while((int)waitingForPlayer[5] < 0) {
+			System.out.println("aargh jeg i looop");
 				//Endless loop to keep quering for the specific player.
-			
 		}
-		
-		playerInView = (Object[]) getPlayerInView(game, numberFromArray); //gets the player from the gamespace
-		
+		System.out.println("ikke i loop");
+		playerInView = waitingForPlayer;
+		System.out.println("player in view " + playerInView[1] + " " + playerInView[5]);
 		if((int)playerInView[5] >= 0) {
 			//raises the pot with the value the player entered. also works for just checking.
-			playerBoard = (Object[]) getBoard(board); //gets the board into view
-			playerBoard[5] = (int)playerBoard[5] + (int)playerInView[5]; //updates the pot with the value the player entered
+			System.out.println("Raises pot");
+//			playerBoard = (Object[]) getBoard(board); //gets the board into view
+//			System.out.println("got the board");
+//			playerBoard[5] = (int)playerBoard[5] + (int)playerInView[5]; //updates the pot with the value the player entered
+//			System.out.println("updated the board");
 			playerInView[5] = -3; //sets the player to be in waiting state again.
-			board.put(playerBoard); //returns the board object to the boardspace
-			game.put(playerInView); //returns the player object to the gamespace
+//			board.put(playerBoard); //returns the board object to the boardspace
+			game.put(playerInView[0],
+					playerInView[1],
+					playerInView[2],
+					playerInView[3],
+					playerInView[4],
+					playerInView[5]); //returns the player object to the gamespace
+			Thread.sleep(60);
 			
 		}
 		//check = 0
@@ -245,13 +277,19 @@ public class House {
 		return playerBoard;
 	}
 	
-	public Object waitForPlayer(SequentialSpace board, SequentialSpace game, int number) throws InterruptedException {
-		Object[] waitingForPlayer = game.query(new ActualField(number),
+	public Object waitForPlayer(SequentialSpace game, int number) throws InterruptedException {
+		System.out.println("waiting for player");
+		System.out.println(number);
+		Object[] waitingForPlayer;
+
+		waitingForPlayer = game.get(new ActualField(number),
 				new FormalField(String.class),
 				new FormalField(Integer.class),
 				new FormalField(Object.class),
 				new FormalField(Object.class),
 				new FormalField(Integer.class));
+		System.out.println("Spiller hentet");
+		
 		return waitingForPlayer;
 	}
 	
