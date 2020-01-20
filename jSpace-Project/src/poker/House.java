@@ -16,16 +16,17 @@ import org.jspace.FormalField;
 //import java.io.InputStreamReader;
 
 public class House {
-	private final static int BALANCE = 1000; 
-	private static int playerId = 0;
-	private static int dealer = 1;
-	private static int[] mainAr = {0,0,0,0,0,0,0};
+	final static int BALANCE = 1000; 
+	static int playerId = 0;
+	final static int dealer = 1;
+	final static int[] mainAr = {0,0,0,0,0,0,0};
 	public static void main(String[] args) throws InterruptedException {
 		House house = new House();
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
 		SequentialSpace board = new SequentialSpace();
 		SequentialSpace game = new SequentialSpace();
+		SequentialSpace lobby = new SequentialSpace();
 		
 
 		spaceRepo(spaceRepo);
@@ -36,8 +37,12 @@ public class House {
 		System.out.println("board created");
 		createGame(spaceRepo, game);
 		System.out.println("game created");
-		createLobby(spaceRepo, game, board);
+		createLobby(spaceRepo, lobby);
 		System.out.println("lobby created created");
+		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
+		//ikke start før 2-3 er på bordet.
+		while(countPlayers(mainAr) < 3) {
+		}
 		house.turn(game, board, mainAr, deck, dealer);
 
 	}
@@ -57,17 +62,12 @@ public class House {
 		spaceRepo.add("deck", deck);
 	}
 
-	public static void createLobby(SpaceRepository spaceRepo, SequentialSpace game, SequentialSpace board) throws InterruptedException {
+	public static void createLobby(SpaceRepository spaceRepo, SequentialSpace lobby) throws InterruptedException {
 
 		// creates a lobby for players
-		SequentialSpace lobby = new SequentialSpace();
 
 		// Add the space to the repository
 		spaceRepo.add("lobby", lobby);
-
-		while (true) {
-			canJoin(lobby, spaceRepo, game, board, mainAr);
-		}
 	}
 
 	public static void createBoard(SpaceRepository spaceRepo, SequentialSpace board) {
@@ -140,7 +140,7 @@ public class House {
 	
 	public void givePlayerCards(RandomSpace deck, SequentialSpace game, int dealer) throws InterruptedException {
 		int playerTurn = dealer;
-		for(int i = 0; i <= 7; i++) {
+		for(int i = 0; i < 7; i++) {
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn); //gets the player in view from the gamespace
 				playerInView[3] = getCardFromDeck(deck); //gives the first card
@@ -155,6 +155,7 @@ public class House {
 	public void turn (SequentialSpace game, SequentialSpace board, int[] mainAr, RandomSpace deck, int dealer) throws InterruptedException {
 		Object[] playerBoard;
 		Array testarray;
+		resetPlayers(game, board, dealer, mainAr); //resets players on board.
 		givePlayerCards(deck, game, dealer); //gives the players their cards	
 
 		checkRaiseFoldSequence(game, board, dealer, mainAr);//check for c/r/f
@@ -174,11 +175,27 @@ public class House {
 		//returner kort? eller bare discard dem, og lav et nyt deck?
 	}
 	
-	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
+	public void resetPlayers(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
-		for(int i = 0; i <= 7; i++) {
+		for(int i = 0; i < 7; i++) {
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				playerInView[5] = -3;
+				board.put(playerInView);
+			}
+			playerTurn = playerTurn + 1; //Changes the value to the next player
+		}
+	}
+	
+	
+	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
+		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
+		for(int i = 0; i < 7; i++) {
+			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				if((int)playerInView[5] == -1) {
+					break;
+				}
 				playerInView[5] = -2;
 				board.put(playerInView);
 				checkPlayerAction(game, board);
@@ -259,24 +276,7 @@ public class House {
 	}
 	
 
-	public static void canJoin(SequentialSpace lobby,SpaceRepository spaceRepo, SequentialSpace game,SequentialSpace board, int[] mainAr) throws InterruptedException {
-	System.out.println("here");
 	
-	while(lobby.size() <= 0 )
-	{
-	}
-	System.out.println(lobby.size());
-		Object[] players = lobby.get(new ActualField("join"), new FormalField(String.class));
-			playerId = fillSeats(mainAr);
-			if(playerId > 0){
-				lobby.put(playerId, players[1], BALANCE, gameSpace(spaceRepo, game),boardSpace(spaceRepo, board));
-			}
-			else {
-				System.out.println("noooo");
-				lobby.put("wait"); //needs more stuff done to work properly. and to put players in loop
-			}
-				}
-
 	public static String boardSpace(SpaceRepository spaceRepo, SequentialSpace board) {
 		// check if board exists 
 		String boardUrl = "tcp://localhost:9003/board?keep";
@@ -292,7 +292,7 @@ public class House {
 	// fills the seats.
 	public static int fillSeats(int[] ar){
 		int place =0;
-		for(int i = 0; i < 7; ){
+		for(int i = 0; i < 7; i++){
 			if(ar[i] == 0){
 				ar[i] =  i+1; // needs to be changed to accommodate changes to the overall code.
 				place = ar[i];
@@ -313,5 +313,59 @@ public class House {
 		return ar;
 	}
 
+	public static int countPlayers(int[] mainAr) {
+		int count=0;
+		for(int i = 0; i< mainAr.length; i++) {
+			if(mainAr[i] != 0) {
+				count++;
+			}
+		}
+		return count;
+	}
 		
 }
+
+
+class canJoin implements Runnable {
+
+	SequentialSpace lobby;
+	SpaceRepository spaceRepo;
+	SequentialSpace game;
+	SequentialSpace board;
+	int[] mainAr;
+	
+	
+	public canJoin(SequentialSpace lobby,SpaceRepository spaceRepo, SequentialSpace game,SequentialSpace board, int[] mainAr) {
+		this.lobby = lobby;
+		this.spaceRepo = spaceRepo;
+		this.game = game;
+		this.board = board;
+		this.mainAr = mainAr;
+		
+	}
+	@Override
+	public void run() {
+			
+			while(true) {
+			
+			
+				Object[] players = null;
+				try {
+					players = lobby.get(new ActualField("join"), new FormalField(String.class));
+				
+					House.playerId = House.fillSeats(mainAr);
+					if(House.playerId > 0){
+							lobby.put(House.playerId, players[1], House.BALANCE, House.gameSpace(spaceRepo, game),House.boardSpace(spaceRepo, board));
+					}
+					else {
+							lobby.put("wait");		
+						} //needs more stuff done to work properly. and to put players in loop
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+
+	}
+}
+}
+	

@@ -53,6 +53,7 @@ public class Player {
 					new FormalField(String.class), // get gamelobby
 					new FormalField(String.class) // get boardLobby
 			);
+			System.out.println(playerinfo[3]);
 
 			// query on game for turn
 			RemoteSpace gameLobby = new RemoteSpace((String) playerinfo[3]);
@@ -94,13 +95,12 @@ public class Player {
 		System.out.println();
 		int userInput = Integer.parseInt(input.readLine());
 		Object[] t = { 0, 0 };
-		Object[] x = new Object[6];
 		gameLobby.put(player.getPlayerId(), // player id
 				player.getName(), // name
 				player.balance, // balance
 				t[0], // empty card
 				t[1], // empty card
-				userInput); // check raise fold
+				-1); // check raise fold
 	}
 
 	public int getPlayerId() {
