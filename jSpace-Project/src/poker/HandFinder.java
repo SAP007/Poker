@@ -68,12 +68,15 @@ public class HandFinder {
 		Card[] actualHand = new Card[5];
 
 		int[] multTracker = RulesAux.makeMultTracker(hand);
+		
 		int bestVal = -1;
 		
-		for (int i = hand.length - 1; i >= 0; i--) {
+		for (int i = multTracker.length - 1; i >= 0; i--) {
 			int currMult = multTracker[i];
 			if (currMult >= mult) {
+				
 				bestVal = i + 2;
+				
 				break;
 			}
 
