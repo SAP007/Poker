@@ -4,51 +4,70 @@ package poker;
 public class HandFinder {
 
 	public static final int HANDSIZE = 7;
-	
-	
-	
-	
-//	static Card[] findStraightFlush(Card[] hand) {
-//		
-//		Card[] actualHand = new Card[5];
-//		
-//		actualHand = findStraightHand(hand);
-//		
-//	}
-	
-	static Card[] findTwoPairs(Card[] hand) {
-		
-		Card[] actualHand = new Card[5];
+
+	static Card[] findStraightFlush(Card[] hand) {
+
 		hand = RulesAux.sortHand(hand);
 		
-		boolean kickerFound = false;
+		Card[] actualHand = new Card[5];
+		int i = 6;
+
+		actualHand = findStraightHand(hand);
 		
+		while (i > 0) {
+			
+			if (isValidHand(actualHand)) {
+				if (isFlush(actualHand)) {
+					return actualHand;
+				}
+				else {
+					hand = RulesAux.removeLastCard(hand);
+					actualHand = findStraightHand(hand);
+				}
+			}
+			i--;
+			
+		}
+
+		return actualHand;
+
+	}
+
+	static Card[] findTwoPairs(Card[] hand) {
+
+		Card[] actualHand = new Card[5];
+		hand = RulesAux.sortHand(hand);
+
+		boolean kickerFound = false;
+
 		int pairVal = -1;
 		int pairsFound = 0;
 		int actualIndex = 0;
-		
+
 		Card currCard = hand[hand.length - 1];
-		
+
 		for (int i = hand.length - 2; i >= 0; i--) {
 			Card nextCard = hand[i];
-			
+
 			int currVal = currCard.getNumber();
 			int nextVal = nextCard.getNumber();
-			
-			/*currCard and nextCard are equal, save them as pair and exclude that 
-			 * value from being classified as pair later
+
+			/*
+			 * currCard and nextCard are equal, save them as pair and exclude that value
+			 * from being classified as pair later
 			 */
 			if (currVal == nextVal && currVal != pairVal && actualIndex < 5 && pairsFound < 2) {
 				actualHand[actualIndex] = currCard;
 				actualHand[actualIndex + 1] = nextCard;
-				
+
 				pairVal = currVal;
 				actualIndex += 2;
 				pairsFound++;
-				
+
 			}
-			/* for two pairs there is room for one kicker,
-			 * first one found will be the highest and is saved
+			/*
+			 * for two pairs there is room for one kicker, first one found will be the
+			 * highest and is saved
 			 */
 			else if (!kickerFound && actualIndex < 5) {
 				actualHand[actualIndex] = currCard;
@@ -56,39 +75,39 @@ public class HandFinder {
 				kickerFound = true;
 			}
 			currCard = nextCard;
-			
+
 		}
-		
+
 		return actualHand;
-		
+
 	}
-	
+
 	static Card[] findMultOfAKind(Card[] hand, int mult) {
 
 		Card[] actualHand = new Card[5];
 
 		int[] multTracker = RulesAux.makeMultTracker(hand);
-		
+
 		int bestVal = -1;
-		
+
 		for (int i = multTracker.length - 1; i >= 0; i--) {
 			int currMult = multTracker[i];
 			if (currMult >= mult) {
-				
+
 				bestVal = i + 2;
-				
+
 				break;
 			}
 
 		}
 
-		//if no better value is found, return invalid hand
+		// if no better value is found, return invalid hand
 		if (bestVal == -1)
 			return actualHand;
 
-		//indicates number of cards in hand that are not part of combo
+		// indicates number of cards in hand that are not part of combo
 		int remainder = actualHand.length - mult;
-		
+
 		int actualIndex = actualHand.length - 1;
 		for (int i = hand.length - 1; i >= 0; i--) {
 			int currVal = hand[i].getNumber();
@@ -105,8 +124,7 @@ public class HandFinder {
 
 		return actualHand;
 	}
-	
-	
+
 	public static Card[] findFlushHand(Card[] hand) throws Exception {
 
 		Card[] actualHand = new Card[5];
@@ -185,7 +203,6 @@ public class HandFinder {
 
 		}
 
-		
 		if (numOfClubs >= 5) {
 			actualHand = clubHand;
 		} else if (numOfDiamonds >= 5) {
@@ -201,18 +218,16 @@ public class HandFinder {
 		return actualHand;
 
 	}
-	
-	
-	static Card[] findFullHouse(Card[] hand) {
 
+	static Card[] findFullHouse(Card[] hand) {
 
 		int[] multTracker = new int[12];
 		Card[] actualHand = new Card[5];
-		
+
 		hand = RulesAux.sortHand(hand);
-		
+
 		multTracker = RulesAux.makeMultTracker(hand);
-		
+
 		boolean tripFound = false;
 		// find triplet
 		int triplet = -1;
@@ -225,33 +240,26 @@ public class HandFinder {
 				pair = i + 2;
 			}
 		}
-		
-		
+
 		int actualIndex = 0;
-		
+
 		for (int i = 6; i >= 0; i--) {
-			
+
 			Card card = hand[i];
-			
+
 			if ((card.getNumber() == pair || card.getNumber() == triplet) && actualIndex < 5) {
 				actualHand[actualIndex] = card;
 				actualIndex++;
 			}
 		}
 
-		
 		return actualHand;
 
 	}
-	
-	
-	
+
 	public static Card[] findStraightHand(Card[] hand) {
 
-
 		hand = RulesAux.sortHand(hand);
-		
-		RulesAux.printHand(hand);
 
 		// currently considered number
 		int currNum = hand[0].getNumber();
@@ -262,7 +270,7 @@ public class HandFinder {
 		// index reached in actual index
 		int actualIndex = 1;
 
-		for (int i = 1; i < HANDSIZE; i++) {
+		for (int i = 1; i < hand.length; i++) {
 			int nextNum = hand[i].getNumber();
 
 			// if nextNum is exactly one greater than currNum, add to actualHand
@@ -275,8 +283,9 @@ public class HandFinder {
 
 			else if (nextNum == currNum)
 				continue;
-			
-			//If nextNum is not in sequnce, and straight has not yet been found, reset actualHand
+
+			// If nextNum is not in sequnce, and straight has not yet been found, reset
+			// actualHand
 			else if (actualIndex < 4) {
 				for (int j = 0; j < 5; j++) {
 					actualHand[j] = null;
@@ -289,14 +298,10 @@ public class HandFinder {
 
 		}
 
-		RulesAux.printHand(actualHand);
-		
 		return actualHand;
 
 	}
-	
-	
-	
+
 	// used to replace smaller flush cards with greater ones
 	public static Card[] insertIfLarger(Card[] actualHand, Card card) {
 
@@ -323,18 +328,42 @@ public class HandFinder {
 		return actualHand;
 	}
 
+	private static boolean isFlush(Card[] hand) {
+
+		// saves suit of first card in hand
+		Suit firstSuit = hand[0].getSuit();
+
+		// return false if one suit does not match
+		for (int i = 1; i < hand.length; i++) {
+			if (hand[i].getSuit() != firstSuit) {
+				return false;
+			}
+		}
+		return true;
+
+	}
+	
+	//returns false, if actualHand contains any null cards
+	public static boolean isValidHand(Card[] actualHand) {
+
+		for (int i = 0; i < 5; i++) {
+			if (actualHand[i] == null)
+				return false;
+		}
+		return true;
+
+	}
+
 	public static int findHighCard(Card[] hand) {
-		
+
 		hand = RulesAux.sortHand(hand);
 		int sum = 0;
-		
+
 		for (int i = hand.length - 1; i > 1; i--) {
 			sum = sum + (hand[i].getNumber() * i * 2);
 		}
-		
-		
-		
+
 		return sum;
 	}
-	
+
 }

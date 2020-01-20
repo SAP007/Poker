@@ -123,5 +123,19 @@ public class RulesAux {
 		System.out.println();
 		
 	}
+	
+	static Card[] removeLastCard(Card[] hand) {
+		
+		hand = sortHand(hand);
+		
+		int newN = hand.length - 1;
+		Card[] newHand = new Card[newN];
+		
+		for (int i = 0; i < newN; i++) {
+			newHand[i] = hand[i];
+		}
+		
+		return newHand;
+	}
 
 }
