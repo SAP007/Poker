@@ -250,6 +250,8 @@ public class HandFinder {
 
 
 		hand = RulesAux.sortHand(hand);
+		
+		RulesAux.printHand(hand);
 
 		// currently considered number
 		int currNum = hand[0].getNumber();
@@ -273,19 +275,22 @@ public class HandFinder {
 
 			else if (nextNum == currNum)
 				continue;
-
-			else {
-
+			
+			//If nextNum is not in sequnce, and straight has not yet been found, reset actualHand
+			else if (actualIndex < 4) {
 				for (int j = 0; j < 5; j++) {
 					actualHand[j] = null;
 				}
-				actualIndex = 0;
+				actualHand[0] = hand[i];
+				actualIndex = 1;
 			}
 
 			currNum = nextNum;
 
 		}
 
+		RulesAux.printHand(actualHand);
+		
 		return actualHand;
 
 	}
