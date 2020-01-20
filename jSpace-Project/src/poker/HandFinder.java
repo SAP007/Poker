@@ -69,7 +69,7 @@ public class HandFinder {
 			 * for two pairs there is room for one kicker, first one found will be the
 			 * highest and is saved
 			 */
-			else if (!kickerFound && actualIndex < 5) {
+			else if (!kickerFound && actualIndex < 5 && currVal != pairVal) {
 				actualHand[actualIndex] = currCard;
 				actualIndex++;
 				kickerFound = true;
