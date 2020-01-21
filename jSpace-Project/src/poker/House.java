@@ -184,7 +184,8 @@ public class House {
 						playerInView[3],
 						playerInView[4],
 						playerInView[5],
-						playerInView[6]); //returns the player to the game
+						playerInView[6],
+						playerInView[7]); //returns the player to the game
 				playerTurn++;
 				System.out.println("PlayerTurn is now :" + playerTurn);
 				
@@ -231,7 +232,8 @@ public class House {
 						playerInView[3],
 						playerInView[4],
 						playerInView[5],
-						playerInView[6]);
+						playerInView[6],
+						playerInView[7]);
 			}
 			playerTurn++; //Changes the value to the next player
 			System.out.println("PlayerTurn: " + playerTurn);
@@ -243,11 +245,24 @@ public class House {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
 		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
 		System.out.println("CRF sequence 1");
+		Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+		game.put(playerInView[0],
+				playerInView[1],
+				playerInView[2],
+				playerInView[3],
+				playerInView[4],
+				playerInView[5],
+				playerInView[6],
+				playerInView[7]);
+		System.out.println("CRF: " + playerInView[6] + " " + playerInView[7]);
+		Thread.sleep(60);
+		while((int)playerInView[5] != -1 && lastBet>(int)playerInView[7]){
+			playerTurn = dealer;
 		for(int i = 0; i < 7; i++) {
 			System.out.println("CRF sequence forloop");
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
 				System.out.println("CRF sequence if state");
-				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				playerInView = (Object[]) getPlayerInView(game, playerTurn);
 				System.out.println("CRF sequence playerview done");
 				if((int)playerInView[5] == -1) {
 					System.out.println("CRF sequence playerview break");
@@ -263,7 +278,8 @@ public class House {
 						playerInView[3],
 						playerInView[4],
 						playerInView[5],
-						playerInView[6]);
+						playerInView[6],
+						playerInView[7]);
 				Thread.sleep(60);
 				System.out.println("CRF sequence playerview wait for player action");
 
@@ -273,6 +289,9 @@ public class House {
 			System.out.println("CRF sequence playerturn increment");
 			playerTurn = playerTurn + 1; //Changes the value to the next player
 		}
+			
+				
+			}
 	}
 	
 	public void checkPlayerAction(SequentialSpace game, SequentialSpace board, int playerNumber) throws InterruptedException {
@@ -296,7 +315,7 @@ public class House {
 			System.out.println("updated the board");
 			if((int)playerInView[5] >= 0 ) {
 			playerInView[6] = (int)playerInView[5];
-			lastBet = (int)playerInView[5];
+			lastBet = (int)playerInView[7];
 			}
 			playerInView[5] = -3; //sets the player to be in waiting state again.
 			board.put(playerBoard[0],
@@ -311,7 +330,8 @@ public class House {
 					playerInView[3],
 					playerInView[4],
 					playerInView[5],
-					playerInView[6]); //returns the player object to the gamespace
+					playerInView[6],
+					playerInView[7]); //returns the player object to the gamespace
 			Thread.sleep(60);
 			
 		}
@@ -345,6 +365,7 @@ public class House {
 				new FormalField(Object.class),
 				new FormalField(Object.class),
 				new FormalField(Integer.class),
+				new FormalField(Integer.class),
 				new FormalField(Integer.class));
 		System.out.println("Spiller hentet");
 		
@@ -357,6 +378,7 @@ public class House {
 				new FormalField(Integer.class),
 				new FormalField(Object.class),
 				new FormalField(Object.class),
+				new FormalField(Integer.class),
 				new FormalField(Integer.class),
 				new FormalField(Integer.class));
 		return playerInView;
