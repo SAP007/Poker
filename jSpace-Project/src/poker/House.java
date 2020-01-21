@@ -22,6 +22,7 @@ public class House {
 	final static int[] mainAr = {0,0,0,0,0,0,0};
 	static int lastBet = 0;
 	public static void main(String[] args) throws InterruptedException {
+		
 		House house = new House();
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
@@ -166,14 +167,17 @@ public class House {
 	
 	public void givePlayerCards(RandomSpace deck, SequentialSpace game, int dealer) throws InterruptedException {
 		int playerTurn = dealer;
+		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
 		for(int i = 0; i < 7; i++) {
 			if(mainAr[i] != 0){
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn); //gets the player in view from the gamespace
-				System.out.println("kort 1");
+				System.out.println("PlayerinView :" + playerInView);
 				playerInView[3] = getCardFromDeck(deck); //gives the first card
+				System.out.println("Got first card: " + playerInView[3]);
 				playerInView[4] = getCardFromDeck(deck); //gives the second card
-				System.out.println("kort givet til: " + playerInView[1]);
+				System.out.println("Got second card: " + playerInView[4]);
 				playerInView[5] = -2; //sets it to -2 so the player knows it needs to take the hand
+				System.out.println("playerInView set to :" + playerInView[5]);
 				game.put(playerInView[0],
 						playerInView[1],
 						playerInView[2],
@@ -182,6 +186,7 @@ public class House {
 						playerInView[5],
 						playerInView[6]); //returns the player to the game
 				playerTurn++;
+				System.out.println("PlayerTurn is now :" + playerTurn);
 				
 			}
 		}	
@@ -213,9 +218,12 @@ public class House {
 	
 	public void resetPlayers(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
+		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
 		for(int i = 0; i < 7; i++) {
 			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				System.out.println("Printing array number: " + mainAr[i]);
 				Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				System.out.println("PlayerInView: " + playerInView[1]);
 				playerInView[5] = -3;
 				game.put(playerInView[0],
 						playerInView[1],
@@ -225,13 +233,15 @@ public class House {
 						playerInView[5],
 						playerInView[6]);
 			}
-			playerTurn = playerTurn + 1; //Changes the value to the next player
+			playerTurn++; //Changes the value to the next player
+			System.out.println("PlayerTurn: " + playerTurn);
 		}
 	}
 	
 	
 	public void checkRaiseFoldSequence(SequentialSpace game, SequentialSpace board, int dealer, int[] mainAr) throws InterruptedException {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
+		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
 		System.out.println("CRF sequence 1");
 		for(int i = 0; i < 7; i++) {
 			System.out.println("CRF sequence forloop");
@@ -266,17 +276,14 @@ public class House {
 	}
 	
 	public void checkPlayerAction(SequentialSpace game, SequentialSpace board, int playerNumber) throws InterruptedException {
-		System.out.println("wait for player method");
 		Object[] playerInView;
-		System.out.println("wait for player method");
 		Object[] playerBoard;
-		System.out.println("wait for player method");
 		Object[] waitingForPlayer = (Object[]) waitForPlayer(game, playerNumber);
 		playerInView = waitingForPlayer;
 		System.out.println("player in view " + playerInView[1] + " " + playerInView[5] + " last bet: " + playerInView[6]);
 		if((int)playerInView[5] >= 0) {
 			//raises the pot with the value the player entered. also works for just checking.
-			System.out.println("Raises pot");
+			System.out.println("Raises pot with: " + playerInView[5]);
 			playerBoard = board.get(new FormalField(Object.class), 
 					new FormalField(Object.class), 
 					new FormalField(Object.class),
