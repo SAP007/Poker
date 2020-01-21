@@ -360,7 +360,7 @@ public class HandFinder {
 		int sum = 0;
 
 		for (int i = hand.length - 1; i > 1; i--) {
-			sum = sum + (hand[i].getNumber() * i * 2);
+			sum = sum + (hand[i].getNumber() * i * i);
 		}
 
 		return sum;

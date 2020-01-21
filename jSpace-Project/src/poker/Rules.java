@@ -1,7 +1,5 @@
 package poker;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 //Rules governing game
 public class Rules {
 
@@ -18,10 +16,9 @@ public class Rules {
 		//TODO: Straight Flush
 		
 		if (isValidHand(actualHand)) {
-			handPower = 1000 + RulesAux.handSum(actualHand);
+			handPower = 10000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("Straight Flush: " + handPower);
-			RulesAux.printHand(actualHand);
 			
 			return handPower;
 			
@@ -32,9 +29,8 @@ public class Rules {
 		actualHand = HandFinder.findMultOfAKind(hand, 4);
 		
 		if (isValidHand(actualHand)) {
-			handPower = 8000;
+			handPower = 80000;
 			System.out.println("Four of a kind: " + handPower);
-			RulesAux.printHand(actualHand);
 			
 			//current tie-breaker is sum of hand, mahy not work for edge cases
 			handPower += RulesAux.handSum(actualHand);
@@ -49,13 +45,8 @@ public class Rules {
 		
 		
 		if (isValidHand(actualHand)) {
-			handPower = 7000;
+			handPower = 70000;
 			System.out.println("Full House: " + handPower);
-			
-			
-			RulesAux.printHand(actualHand);
-			
-			
 			
 			return handPower;
 		}
@@ -64,11 +55,8 @@ public class Rules {
 
 		//check if flush
 		if (isValidHand(actualHand)) {
-			handPower = 6000;
+			handPower = 60000;
 			System.out.println("Flush: " + handPower);
-			
-			RulesAux.printHand(actualHand);
-			
 			
 			return handPower;
 		}
@@ -79,12 +67,11 @@ public class Rules {
 		
 		if (isValidHand(actualHand)) {
 
-			handPower = 5000 + RulesAux.handSum(actualHand);
+			int bonus = 0;
+			bonus = RulesAux.handSum(actualHand);
+			
+			handPower = 50000 + bonus;
 			System.out.println("Straight: " + handPower);
-			
-
-			
-			RulesAux.printHand(actualHand);
 			
 			return handPower;
 		}
@@ -94,11 +81,9 @@ public class Rules {
 		
 		if (isValidHand(actualHand)) {
 			
-			handPower = 4000 + RulesAux.handSum(actualHand);
+			handPower = 40000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("3 of a kind, handPower: " + handPower);
-			
-			RulesAux.printHand(actualHand);
 			
 			return handPower;			
 		}
@@ -106,11 +91,9 @@ public class Rules {
 		actualHand = HandFinder.findTwoPairs(hand);
 		
 		if (isValidHand(actualHand)) {
-			handPower = 3000 + RulesAux.handSum(actualHand);
+			handPower = 30000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("two pairs, handPower: " + handPower);
-			
-			RulesAux.printHand(actualHand);
 			
 			return handPower;	
 		}
@@ -120,11 +103,9 @@ public class Rules {
 		
 		
 		if (isValidHand(actualHand)) {
-			handPower = 2000 + RulesAux.handSum(actualHand);
+			handPower = 20000 + RulesAux.handSum(actualHand);
 			
 			System.out.println("one pair, handPower: " + handPower);
-			
-			RulesAux.printHand(actualHand);
 			
 			return handPower;	
 		}
@@ -134,8 +115,6 @@ public class Rules {
 			handPower = HandFinder.findHighCard(hand);
 			
 			System.out.println("High card, handpower: " + handPower);
-			
-			RulesAux.printHand(actualHand);
 			
 			return handPower;
 		}
@@ -152,56 +131,6 @@ public class Rules {
 		}
 		return true;
 
-	}
-
-	// Main for testing purposes
-	public static void main(String[] args) throws Exception {
-
-		Card[] hand = randomHand();
-		
-
-//		hand[0] = new Card(Suit.CLUBS, 10);
-//		hand[1] = new Card(Suit.CLUBS, 11);
-//		hand[2] = new Card(Suit.SPADES, 10);
-//		hand[3] = new Card(Suit.DIAMONDS, 5);
-//		hand[4] = new Card(Suit.HEARTS, 3);
-//		hand[5] = new Card(Suit.DIAMONDS, 7);
-//		hand[6] = new Card(Suit.CLUBS, 2);
-		
-		hand[0] = new Card(Suit.HEARTS, 2);
-		hand[1] = new Card(Suit.HEARTS, 3);
-		hand[2] = new Card(Suit.HEARTS, 4);
-		hand[3] = new Card(Suit.HEARTS, 5);
-		hand[4] = new Card(Suit.HEARTS, 6);
-		hand[5] = new Card(Suit.HEARTS, 10);
-		hand[6] = new Card(Suit.HEARTS, 11);
-		
-		RulesAux.printHand(hand);
-
-		Card[] actualHand = new Card[5];
-		
-		findHandPower(hand);
-		
-		
-	}
-	
-	private static Card[] randomHand() {
-		Card[] hand = new Card[7];
-		int minNum = 2;
-		int maxNum = 14;
-		
-		int minSuit = 1;
-		int maxSuit = 4;
-		
-		
-		for (int i = 0; i < 7; i++) {
-			int randNum = ThreadLocalRandom.current().nextInt(minNum, maxNum + 1);
-			int randSuit = ThreadLocalRandom.current().nextInt(minSuit, maxSuit + 1);
-			hand[i] = new Card(Suit.suitFromInt(randSuit), randNum);
-		}
-		return hand;
-		
-		
 	}
 
 }
