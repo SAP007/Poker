@@ -16,21 +16,26 @@ import java.util.List;
 
 public class Player {
 	// fields
-	private int balance;
-	private String name;
-	private int playerId;
-	private Object[] x1;
-	private Object[] x2;
-	private static int state;
+	int balance;
+	String name;
+	int playerId;
+	Object[] x1;
+	Object[] x2;
+	static int state;
+	static int lastBet;
+	static Player player;
+	static int totalBet;
 
 	// Constructor
-	public Player(int playerId, String name, int balance, Object[] card1, Object[] card2, int state) {
+	public Player(int playerId, String name, int balance, Object[] card1, Object[] card2, int state, int lastBet, int totalBet) {
 		this.playerId = playerId;
 		this.name = name;
 		this.balance = balance;
 		this.x1 = card1;
 		this.x2 = card2;
 		this.state = state;
+		this.lastBet = lastBet;
+		this.totalBet = totalBet;
 	}
 
 	public static void main(String[] args) throws InterruptedException {
@@ -73,8 +78,9 @@ public class Player {
 			// Keep sending username and call, raise fold
 			//System.out.println("make a bet...");
 			System.out.println("før player");
-			Player player = createPlayer(playerinfo, gameLobby, input);
-			System.out.println("efter player");
+			player = createPlayer(playerinfo, gameLobby, input);
+			
+			System.out.println("Player id efter creation :" + player.playerId);
 			new Thread(new turnHandler(player, gameLobby)).start();
 //			while (true) {
 //			//	int bet = Integer.parseInt(input.readLine());
@@ -106,24 +112,18 @@ public class Player {
 			throws InterruptedException, NumberFormatException, IOException {
 		// send info to gameLobby space
 		// userinput for check raise fold
-		System.out.println("Sut 1");
-		Player player = new Player((int) playerInfo[0], (String) playerInfo[1], (int) playerInfo[2], (Object[]) null, (Object[]) null, (int) state);
-		System.out.println("Sut 2");
+		Player player = new Player((int) playerInfo[0], (String) playerInfo[1], (int) playerInfo[2], (Object[]) null, (Object[]) null, (int) state, lastBet, totalBet);
 		
 		Object[] t = { 0, 0 };
-		System.out.println("Sut 3");
 		player.playerId = (int) playerInfo[0];
-		System.out.println("Sut 4");
 		player.name = (String) playerInfo[1];
-		System.out.println("Sut 5");
 		player.x1 = t;
 		player.x2 = t;
 		player.balance = 5000;
-		System.out.println("Sut 6");
 		player.state = -1;
-		System.out.println("Sut 7");
-		gameLobby.put(player.playerId, player.name, player.balance, player.x1, player.x2, player.state); // check raise fold
-		System.out.println("Sut 8");
+		player.lastBet = 0;
+		player.totalBet = 0;
+		gameLobby.put(player.playerId, player.name, player.balance, player.x1, player.x2, player.state, player.lastBet); // check raise fold
 		return player;
 	}
 
@@ -172,7 +172,8 @@ public class Player {
 				new FormalField(Integer.class), // players balance
 				new FormalField(Object.class), // first card
 				new FormalField(Object.class), // second card
-				new ActualField(-3) // Raise, check, Fold
+				new ActualField(-3),
+				new FormalField(Integer.class) // Raise, check, Fold
 		);
 		
 			player.state = (int) playerinfo[5];
@@ -202,7 +203,42 @@ class turnHandler implements Runnable {
 	public void run() {
 		System.out.println(player.getName());
 		Object[] info = null;
-
+		//get cards in first run.
+		try {
+			Object[] playerPlaceholder = gameLobby.get(new ActualField(player.getPlayerId()), // PlayerId
+							new ActualField(player.getName()), // player name
+							new FormalField(Integer.class), // players balance
+							new FormalField(Object.class), // first card
+							new FormalField(Object.class), // second card
+							new ActualField(-2), // Raise, check, Fold
+							new FormalField(Integer.class)
+					);
+			System.out.println("player id: " + playerPlaceholder[0]);
+			player.playerId = (int) playerPlaceholder[0];
+			player.name = (String) playerPlaceholder[1];
+			player.balance = (int) playerPlaceholder[2];
+			player.x1 = (Object[]) playerPlaceholder[3];
+			player.x2 = (Object[]) playerPlaceholder[4];
+			player.state = -3;
+			player.lastBet = (int) playerPlaceholder[6];
+			player.totalBet = 0;
+			
+			gameLobby.put(
+					playerPlaceholder[0], // playerid
+					playerPlaceholder[1], 	// name
+					playerPlaceholder[2], // balance
+					playerPlaceholder[3],	// fisrt card
+					playerPlaceholder[4], 	// second card
+					playerPlaceholder[5],	// check raise fold
+					playerPlaceholder[6]		//last bet
+					);
+			System.out.println("kort taget og lagt mig tilbage");
+			
+		} catch (InterruptedException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		
 		while (true) {
 			try {
 				info = gameLobby.get(new ActualField(player.getPlayerId()), // PlayerId
@@ -210,7 +246,8 @@ class turnHandler implements Runnable {
 						new FormalField(Integer.class), // players balance
 						new FormalField(Object.class), // first card
 						new FormalField(Object.class), // second card
-						new ActualField(-2) // Raise, check, Fold
+						new ActualField(-2), // Raise, check, Fold
+						new FormalField(Integer.class) // Last bet
 				);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
@@ -221,8 +258,27 @@ class turnHandler implements Runnable {
 			System.out.println(info[5]);
 				//raise check fold 
 				try {
-					System.out.println("Make a bet");
-					userBet =  Integer.parseInt(input.readLine());
+					int bets = 0;
+					if((int)info[6] > 0) {
+						System.out.println("Call or Raise, the current bet is: " + info[6] + " and you have bet: " + player.totalBet);
+						userBet =  Integer.parseInt(input.readLine());
+						bets = userBet + player.totalBet;
+						while(bets < (int)info[6] && userBet != -1) {
+							System.out.println("Your bid, is lower than the current bid. Please try again");
+							System.out.println("Call or Raise, the current bet is: " + info[6]);
+							userBet =  Integer.parseInt(input.readLine());
+							bets = userBet + player.totalBet;
+						}
+					}
+					else if((int)info[6] == 0) {
+						System.out.println("Check or Raise");
+						userBet =  Integer.parseInt(input.readLine());
+						while(userBet <= -2) {
+							System.out.println("Your bid, is not valid, please try again");
+							System.out.println("Check or Raise");
+							userBet =  Integer.parseInt(input.readLine());
+						}
+					}
 				} catch (NumberFormatException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -237,6 +293,9 @@ class turnHandler implements Runnable {
 				 * 
 				 * */
 				info[5] = userBet;
+				if(userBet > 0) {
+				player.totalBet = player.totalBet + userBet;
+				}
 				try {
 					System.out.println("putting player back");
 					gameLobby.put(
@@ -245,7 +304,8 @@ class turnHandler implements Runnable {
 							info[2], // balance
 							info[3],	// fisrt card
 							info[4], 	// second card
-							info[5]		// check raise fold
+							info[5],	// check raise fold
+							info[6]		//last bet
 							);
 					Thread.sleep(60);
 				} catch (InterruptedException e) {
