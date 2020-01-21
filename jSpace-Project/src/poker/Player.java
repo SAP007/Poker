@@ -245,7 +245,7 @@ class turnHandler implements Runnable {
 			System.out.println("Get raise check fold  : " +playerPlaceholder[5]);
 			System.out.println("Get last bet : " + playerPlaceholder[6]);
 			
-			
+			// test
 			
 			gameLobby.put(
 					playerPlaceholder[0], // playerid
