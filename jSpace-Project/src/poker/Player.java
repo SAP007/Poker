@@ -226,13 +226,15 @@ class turnHandler implements Runnable {
 			player.playerId = (int) playerPlaceholder[0];
 			player.name = (String) playerPlaceholder[1];
 			player.balance = (int) playerPlaceholder[2];
-			player.x1 = (Object[]) playerPlaceholder[3];
-			player.x2 = (Object[]) playerPlaceholder[4];
 			player.state = -3;
 			player.lastBet = (int) playerPlaceholder[6];
 			player.totalBet = (int) playerPlaceholder[7];
 			playerPlaceholder[5] = -3;
-
+			Object[] t = (Object[]) playerPlaceholder[3];
+			System.out.println("First card :" + t[0] + " " + t[1]);
+			Double value1 = (Double) t[0];
+			Double value2 = (Double) t[1];
+			System.out.println("First card :" + value1.intValue() + " " + value2.intValue());
 			System.out.println("got from game lobby");
 			System.out.println("Fetched player to give cards: " + playerPlaceholder);
 
@@ -326,10 +328,10 @@ class turnHandler implements Runnable {
 						info[5], // check raise fold
 						info[6], // last bet
 						info[7]);
-
+				Object[] t = (Object[]) info[3];
 				System.out.println("Get player id : " + info[0]);
 				System.out.println("Get name : " + info[1]);
-				System.out.println("Get balance : " + info[2]);
+				System.out.println("Get balance : " + t[0] + " " + t[1]);
 				System.out.println("Get first card : " + info[3]);
 				System.out.println("Get second card : " + info[4]);
 				System.out.println("Get raise check fold  : " + info[5]);
@@ -397,7 +399,7 @@ class displayHandler implements Runnable {
 		}
 
 		List<Object[]> gameInfo = game.queryAll(new FormalField(Integer.class), // PlayerId
-				new ActualField(String.class), // player name
+				new FormalField(String.class), // player name
 				new FormalField(Integer.class), // players balance
 				new FormalField(Object.class), // first card
 				new FormalField(Object.class), // second card
