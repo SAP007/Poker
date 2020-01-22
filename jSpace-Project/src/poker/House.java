@@ -7,6 +7,7 @@ import org.jspace.SpaceRepository;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jspace.ActualField;
@@ -43,7 +44,8 @@ public class House {
 		System.out.println("lobby created created");
 		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
 		while(countPlayers(mainAr) < 3) {
-			System.out.println("Vente vente vente");
+			System.out.println("Venter på 3 spillere");
+			Thread.sleep(60);
 		}
 		house.turn(game, board, mainAr, deck, dealer);
 
@@ -245,6 +247,7 @@ public class House {
 		int playerTurn = dealer; //finds the dealer and sets the playerTurn to that int value matching that id.
 		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
 		System.out.println("CRF sequence 1");
+		int allPlayerHaveCalled = 0;
 		Object[] playerInView = (Object[]) getPlayerInView(game, playerTurn);
 		game.put(playerInView[0],
 				playerInView[1],
@@ -256,7 +259,6 @@ public class House {
 				playerInView[7]);
 		System.out.println("CRF: " + playerInView[6] + " " + playerInView[7]);
 		Thread.sleep(60);
-		while((int)playerInView[5] != -1 && lastBet>(int)playerInView[7]){
 			playerTurn = dealer;
 		for(int i = 0; i < 7; i++) {
 			System.out.println("CRF sequence forloop");
@@ -266,8 +268,17 @@ public class House {
 				System.out.println("CRF sequence playerview done");
 				if((int)playerInView[5] == -1) {
 					System.out.println("CRF sequence playerview break");
-					break;
+					game.put(playerInView[0],
+							playerInView[1],
+							playerInView[2],
+							playerInView[3],
+							playerInView[4],
+							playerInView[5],
+							playerInView[6],
+							playerInView[7]);
+					Thread.sleep(60);
 				}
+				else {
 				System.out.println("CRF sequence player set to -2");
 				playerInView[6] = lastBet;
 				playerInView[5] = -2;
@@ -282,17 +293,95 @@ public class House {
 						playerInView[7]);
 				Thread.sleep(60);
 				System.out.println("CRF sequence playerview wait for player action");
-
+				
 				checkPlayerAction(game, board, playerTurn);
+				}
 				
 			}
 			System.out.println("CRF sequence playerturn increment");
 			playerTurn = playerTurn + 1; //Changes the value to the next player
 		}
-			
+		playerTurn = dealer;
+		int count = 0;
+		System.out.println("Checking if all has bet the same");
+		ArrayList<Integer> arrayTest = new ArrayList<Integer>();
+		System.out.println("count: " + count + "players: " + countPlayers(mainAr));
+		while(count != countPlayers(mainAr)) {
+		for(int i = 0; i < 7; i++) {
+			System.out.println("i: " + i);
+			System.out.println("mainAr: " + mainAr[i] + " PlayerTurn: " + playerTurn);
+			if(mainAr[i] == playerTurn && mainAr[i] != 0){
+				playerInView = (Object[]) getPlayerInView(game, playerTurn);
+				game.put(playerInView[0],
+						playerInView[1],
+						playerInView[2],
+						playerInView[3],
+						playerInView[4],
+						playerInView[5],
+						playerInView[6],
+						playerInView[7]);
+				System.out.println("Player: " + playerInView[1] + " bet a total of: " + playerInView[7]);
+				if((int)playerInView[5] != -1) {
+					System.out.println("In array check for -1");
+				arrayTest.add((Integer) playerInView[7]);
+				System.out.println("added to array shit");
+				count++;
+				System.out.println("Counted: " + count);
+				}
+				else { count++; System.out.println("Counted: " + count); }
 				
+				playerTurn++;
+				System.out.println("playerTurn: " + playerTurn);
 			}
+		}
+		int whileLoopDone = 0;
+		boolean tf = isAllEqual(arrayTest);
+		System.out.println(tf);
+		while(tf == false) {
+			if(whileLoopDone != 1) {
+			System.out.println("No idea why im here");
+			checkRaiseFoldSequence(game, board, dealer, mainAr);
+			}
+			playerTurn = dealer;
+				for(int i = 0; i < 7; i++) {
+					if(mainAr[i] == playerTurn && mainAr[i] != 0){
+						playerInView = (Object[]) getPlayerInView(game, playerTurn);
+						System.out.println("Player: " + playerInView[1] + "balance and stuff: " + playerInView[6] + playerInView[7]);
+						playerInView[7] = 0;
+						playerInView[6] = 0;
+						System.out.println("Player: " + playerInView[1] + "balance and stuff: " + playerInView[6] + playerInView[7]);
+						game.put(playerInView[0],
+								playerInView[1],
+								playerInView[2],
+								playerInView[3],
+								playerInView[4],
+								playerInView[5],
+								playerInView[6],
+								playerInView[7]);
+						playerTurn++;
+						lastBet = 0;
+					}
+				}
+			break;
+		}
+		System.out.println("im leaving the while");
+		whileLoopDone = 1;
+		arrayTest = null;
+		}
+		
+//		checkRaiseFoldSequence(game, board, dealer, mainAr);
+				
+			
 	}
+	public static boolean isAllEqual(ArrayList<Integer> a){
+        for(int i=1; i<a.size(); i++){
+            if(a.get(0) != a.get(i)){
+                return false;
+            }
+        }
+
+        return true;
+    }
 	
 	public void checkPlayerAction(SequentialSpace game, SequentialSpace board, int playerNumber) throws InterruptedException {
 		Object[] playerInView;
@@ -334,6 +423,17 @@ public class House {
 					playerInView[7]); //returns the player object to the gamespace
 			Thread.sleep(60);
 			
+		}
+		else {
+			game.put(playerInView[0],
+					playerInView[1],
+					playerInView[2],
+					playerInView[3],
+					playerInView[4],
+					playerInView[5],
+					playerInView[6],
+					playerInView[7]);
+			Thread.sleep(60);
 		}
 		//check = 0
 		//fold = -1

@@ -235,7 +235,6 @@ class turnHandler implements Runnable {
 			player.x1 = (Object[]) playerPlaceholder[3];
 			player.x2 = (Object[]) playerPlaceholder[4];
 			player.state = -3;
-			playerPlaceholder[6] = 1;
 			player.lastBet = (int) playerPlaceholder[6];
 			player.totalBet = (int) playerPlaceholder[7];
 			playerPlaceholder[5] = -3;
