@@ -62,7 +62,6 @@ public class Card {
 	}
 	}	
 	
-	
 	public static void main(String[] args) throws IOException, IOException, InterruptedException {
 	String deckUri = "tcp://localhost:9003/deck?keep";
 	RemoteSpace deckSpace = new RemoteSpace(deckUri);

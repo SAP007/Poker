@@ -126,6 +126,13 @@ public class Rules {
 			if (actualHand[i] == null)
 				return false;
 		}
+
+		System.err.println("final hand:");
+		for (Card c : actualHand) {
+			System.out.print(c.toString());
+		}
+		System.out.println();
+		
 		return true;
 
 	}

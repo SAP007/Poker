@@ -4,7 +4,6 @@ import org.jspace.RandomSpace;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,11 +23,9 @@ public class House {
 	final static int[] mainAr = { 0, 0, 0, 0, 0, 0, 0 };
 	static int lastBet = 0;
 
-	public static void main(String[] args) throws InterruptedException, IOException {
+	public static void main(String[] args) throws Exception {
 
 		House house = new House();
-		Card card = new Card();
-		
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
 		SequentialSpace board = new SequentialSpace();
@@ -45,8 +42,6 @@ public class House {
 		System.out.println("game created");
 		createLobby(spaceRepo, lobby);
 		System.out.println("lobby created created");
-		card.main(args);
-		
 		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
 		while (countPlayers(mainAr) < 3) {
 			System.out.println("Venter p� 3 spillere");
@@ -100,6 +95,7 @@ public class House {
 
 	public Object[] getCardFromDeck(RandomSpace deck) throws InterruptedException {
 		Object[] card = deck.get(new FormalField(Integer.class), new FormalField(Integer.class));
+		System.out.println(card[0] + " " + card[1]);
 		return card;
 	}
 
@@ -150,9 +146,13 @@ public class House {
 																						// the gamespace
 				System.out.println("PlayerinView :" + playerInView);
 				playerInView[3] = getCardFromDeck(deck); // gives the first card
+				Object[] t = (Object[]) playerInView[3];
+				System.out.println("First card: " + t[0] + " " + t[1]);
 				System.out.println("Got first card: " + playerInView[3]);
 				playerInView[4] = getCardFromDeck(deck); // gives the second card
 				System.out.println("Got second card: " + playerInView[4]);
+				Object[] t2 = (Object[]) playerInView[4];
+				System.out.println("First card: " + t[0] + " " + t[1]);
 				playerInView[5] = -2; // sets it to -2 so the player knows it needs to take the hand
 				System.out.println("playerInView set to :" + playerInView[5]);
 				game.put(playerInView[0], playerInView[1], playerInView[2], playerInView[3], playerInView[4],
@@ -165,7 +165,7 @@ public class House {
 	}
 
 	public void turn(SequentialSpace game, SequentialSpace board, int[] mainAr, RandomSpace deck, int dealer)
-			throws InterruptedException {
+			throws Exception {
 		System.out.println("Reset player");
 		resetPlayers(game, board, dealer, mainAr); // resets players on board.
 		System.out.println("Give some cards");
@@ -185,6 +185,7 @@ public class House {
 		System.out.println("CRF sequence");
 		checkRaiseFoldSequence(game, board, dealer, mainAr);// check for c/r/f
 		// find en vinder
+		checkWinner(board, game);
 		// returner kort? eller bare discard dem, og lav et nyt deck?
 	}
 
@@ -455,7 +456,7 @@ public class House {
 		}
 		return count;
 	}
-	
+
 	private static void checkWinner(SequentialSpace board, SequentialSpace game) throws Exception {
 
 		Card[] hand = new Card[7];
@@ -465,17 +466,17 @@ public class House {
 				new FormalField(Integer.class));
 
 		int pot = (int) boardCards[5];
-		
+
 		// pull board and convert to type Card
 		for (int i = 0; i < 5; i++) {
 
-			hand[i] = findAndMakeCard(boardCards, i);
+			hand[i] = findAndMakeCard(boardCards, i, true);
 
 		}
 
 		Object[] playerStats = { 0 }, bestPlayerStats = { 0 };
-		
-		//max hand power found so far
+
+		// max hand power found so far
 		int maxHandPower = -1;
 
 		for (int i = 0; i < countPlayers(mainAr); i++) {
@@ -483,73 +484,80 @@ public class House {
 			playerStats = game.get(new FormalField(Integer.class), new FormalField(String.class),
 					new FormalField(Integer.class), new FormalField(Object.class), new FormalField(Object.class),
 					new FormalField(Integer.class), new FormalField(Integer.class), new FormalField(Integer.class));
+			
+			if (bestPlayerStats.length < playerStats.length) {
+				bestPlayerStats = playerStats;
+			}
 
 			int playerState = (int) playerStats[5];
 
-			//if player has not folded, check their hand
+			// if player has not folded, check their hand
 			if (playerState != -1) {
-				//Create Card objects
-				Card newCard1 = findAndMakeCard(playerStats, 3);
-				Card newCard2 = findAndMakeCard(playerStats, 4);
+				// Create Card objects
+				hand[5] = findAndMakeCard(playerStats, 3, false);
+				hand[6] = findAndMakeCard(playerStats, 4, false);
 
-				//add cards to remaining spaces in 7 card hand
-				hand[5] = newCard1;
-				hand[6] = newCard2;
+				// add cards to remaining spaces in 7 card hand
 
-				//evaluate handPower
+				// evaluate handPower
 				handPower = Rules.findHandPower(hand);
 
-				//if newly found handPower is greater than max, update maxHandPower and best player
+				// if newly found handPower is greater than max, update maxHandPower and best
+				// player
 				if (handPower > maxHandPower) {
 					returnPlayer(game, bestPlayerStats);
 					maxHandPower = handPower;
 					bestPlayerStats = playerStats;
-				}
-				else returnPlayer(game, playerStats);
-				
+				} else
+					returnPlayer(game, playerStats);
+
 			}
 
 		}
 
-		//add pot to best player balance
+		System.out.println("Winner is " + bestPlayerStats[1]);
+		// add pot to best player balance
 		bestPlayerStats[2] = (int) bestPlayerStats[2] + pot;
-		
-		//put bestPlayerStats into game space
-		game.put(bestPlayerStats[0],
-				bestPlayerStats[1],
-				bestPlayerStats[2],
-				bestPlayerStats[3],
-				bestPlayerStats[4],
-				bestPlayerStats[5],
-				bestPlayerStats[6],
-				bestPlayerStats[7]);
+
+		// put bestPlayerStats into game space
+		game.put(bestPlayerStats[0], bestPlayerStats[1], bestPlayerStats[2], bestPlayerStats[3], bestPlayerStats[4],
+				bestPlayerStats[5], bestPlayerStats[6], bestPlayerStats[7]);
 
 	}
 
-	//converts array version of card to type Card
-	public static Card findAndMakeCard(Object[] boardCard, int i) {
-		Object[] card = (Object[]) boardCard[i];
-		int suit = (int) card[0];
-		int val = (int) card[1];
+	// converts array version of card to type Card
+	public static Card findAndMakeCard(Object[] playerStats, int i, boolean fromBoard) {
+		Object[] card = (Object[]) playerStats[i];
+		System.out.println("i: " + i);
+		for (int j = 0; j < card.length; j++) {
+			System.out.print("[" + card[j] + "]");
+		}
+		System.out.println();
 
+		int suit, val;
+		
+		if (fromBoard) {
+			suit = (int) card[0];
+			val = (int) card[1];
+		}
+		else {
+			Double tempSuit = (Double) card[0];
+			Double tempVal = (Double) card[1];
+			suit = tempSuit.intValue();
+			val = tempVal.intValue();
+		}
 		return new Card(Suit.suitFromInt(suit), val);
 	}
-	
+
 	public static void returnPlayer(SequentialSpace game, Object[] playerStats) {
-		
+
 		try {
-			game.put(playerStats[0],
-					playerStats[1],
-					playerStats[2],
-					playerStats[3],
-					playerStats[4],
-					-3,
-					playerStats[6],
+			game.put(playerStats[0], playerStats[1], playerStats[2], playerStats[3], playerStats[4], -3, playerStats[6],
 					playerStats[7]);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }
