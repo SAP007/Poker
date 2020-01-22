@@ -7,7 +7,7 @@ public class Rules {
 	
 	public static final int HANDSIZE = 5;
 
-	public int getHandPower(Card[] hand) {
+	public static int getHandPower(Card[] hand) {
 		
 		//TODO: assign numerical value based on power of a hand
 		
