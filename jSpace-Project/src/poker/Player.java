@@ -25,6 +25,9 @@ public class Player {
 	static int lastBet;
 	static Player player;
 	static int totalBet;
+	String first = "Player 1s, Turn";
+	String second = "Player 2s, Turn";
+	String third = "Player 3s, Turn";
 
 	// Constructor
 	public Player(int playerId, String name, int balance, Object[] card1, Object[] card2, int state, int lastBet,
@@ -81,18 +84,12 @@ public class Player {
 
 			System.out.println("Player id efter creation :" + player.playerId);
 			new Thread(new turnHandler(player, gameLobby)).start();
-			new Thread(new displayHandler(boardLobby,gameLobby)).start();
-			// while (true) {
-			// // int bet = Integer.parseInt(input.readLine());
-			// // (id, name, balance, card1, card2, rcf )
-			//
-			// waitforTurn(player, input, gameLobby);
-			// System.out.println("efter vent for tur");
-			// Thread.sleep(600);
-			//
-			// //new Thread(new displayHandler(uri)).start();
-			//
-			// }
+			while (true) {
+
+				Thread.sleep(2000);
+				new Thread(new displayHandler(boardLobby, gameLobby)).start();
+				Thread.sleep(2000);
+			}
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -152,8 +149,8 @@ public class Player {
 	}
 
 	/*
-	 * raisePot controls that the amount being raised with is legal, and changes
-	 * the balance.
+	 * raisePot controls that the amount being raised with is legal, and changes the
+	 * balance.
 	 */
 	public int raisePot(int raiseAmount) {
 		if (raiseAmount > 0 && raiseAmount <= getBalance()) {
@@ -308,8 +305,8 @@ class turnHandler implements Runnable {
 			}
 
 			/*
-			 * put back to the gamelobby the raise fold check name and id new
-			 * balance and cards.
+			 * put back to the gamelobby the raise fold check name and id new balance and
+			 * cards.
 			 * 
 			 */
 			info[5] = userBet;
@@ -343,12 +340,10 @@ class turnHandler implements Runnable {
 
 			/*
 			 * List<Object[]> playerInfo = gameLobby.queryAll(new
-			 * FormalField(Integer.class), // Player // Id new
-			 * FormalField(String.class), // player name new
-			 * FormalField(Integer.class), // players balance new
-			 * FormalField(Integer.class), // first card new
-			 * FormalField(Integer.class), // second card new
-			 * FormalField(Integer.class) // Raise, check, Fold );
+			 * FormalField(Integer.class), // Player // Id new FormalField(String.class), //
+			 * player name new FormalField(Integer.class), // players balance new
+			 * FormalField(Integer.class), // first card new FormalField(Integer.class), //
+			 * second card new FormalField(Integer.class) // Raise, check, Fold );
 			 */
 			System.out.println("Done with turn");
 
@@ -360,11 +355,15 @@ class turnHandler implements Runnable {
 class displayHandler implements Runnable {
 	private RemoteSpace game;
 	private RemoteSpace board;
+	static String first = "Player 1s, Turn";
+	static String second = "Player 2s, Turn";
+	static String third = "Player 3s, Turn";
+	static int counter = 0;
 
-	public displayHandler(RemoteSpace board,RemoteSpace game) throws UnknownHostException, IOException {
-		this.board=board;
-		this.game=game;
-		
+	public displayHandler(RemoteSpace board, RemoteSpace game) throws UnknownHostException, IOException {
+		this.board = board;
+		this.game = game;
+
 	}
 
 	public void run() {
@@ -373,8 +372,8 @@ class displayHandler implements Runnable {
 			// keep updating player info and printing them
 			while (true) {
 				wipeConsole();
-				getboardState(board,game);
-				Thread.sleep(1500);
+				getboardState(board, game);
+				Thread.sleep(5000);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -382,6 +381,7 @@ class displayHandler implements Runnable {
 	}
 
 	public static void getboardState(RemoteSpace board, RemoteSpace game) throws InterruptedException {
+
 		List<Object[]> boardInfo = board.queryAll(new FormalField(Object.class), // firstcard
 				new FormalField(Object.class), // second card
 				new FormalField(Object.class), // third card
@@ -393,11 +393,10 @@ class displayHandler implements Runnable {
 			System.out.println(
 					"[ " + boardState[0] + " ] " + "[ " + boardState[1] + " ] " + "[ " + boardState[2] + " ] " + "[ "
 							+ boardState[3] + " ] " + "[ " + boardState[4] + " ] " + " " + boardState[5] + " $ ");
-
 		}
 
 		List<Object[]> gameInfo = game.queryAll(new FormalField(Integer.class), // PlayerId
-				new ActualField(String.class), // player name
+				new FormalField(String.class), // player name
 				new FormalField(Integer.class), // players balance
 				new FormalField(Object.class), // first card
 				new FormalField(Object.class), // second card
@@ -406,12 +405,39 @@ class displayHandler implements Runnable {
 				new FormalField(Integer.class) // totalBet
 		);
 
-		for (Object[] playerInfo : gameInfo) {
-			System.out.println(playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
-					+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|");
+		// create list
+		String[] update = new String[7];
+		String[]placeholderList = new String[7];
+		
+		if ((int) gameInfo.size() < 3) {
+			for (Object[] playerInfo : gameInfo) {
+				if ((int) playerInfo[0] == 1) {
+					first = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					
+				} else if ((int) playerInfo[0] == 2) {
+					second = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+				} else if ((int) playerInfo[0] == 3) {
+					third = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+				} else {
 
+				}
+			}
+			
+			System.out.println(first);
+			System.out.println(second);
+			System.out.println(third);
+			counter++;
+			
 		}
-
+		while(counter == 2) {
+		getboardState(board, game);
+		}
+	
+		
+	
 	}
 
 	public static void wipeConsole() {

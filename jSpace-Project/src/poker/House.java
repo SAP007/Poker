@@ -4,6 +4,7 @@ import org.jspace.RandomSpace;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,9 +24,11 @@ public class House {
 	final static int[] mainAr = { 0, 0, 0, 0, 0, 0, 0 };
 	static int lastBet = 0;
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, IOException {
 
 		House house = new House();
+		Card card = new Card();
+		
 		SpaceRepository spaceRepo = new SpaceRepository();
 		RandomSpace deck = new RandomSpace();
 		SequentialSpace board = new SequentialSpace();
@@ -42,6 +45,8 @@ public class House {
 		System.out.println("game created");
 		createLobby(spaceRepo, lobby);
 		System.out.println("lobby created created");
+		card.main(args);
+		
 		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
 		while (countPlayers(mainAr) < 3) {
 			System.out.println("Venter p� 3 spillere");
