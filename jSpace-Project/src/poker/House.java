@@ -152,7 +152,7 @@ public class House {
 				playerInView[4] = getCardFromDeck(deck); // gives the second card
 				System.out.println("Got second card: " + playerInView[4]);
 				Object[] t2 = (Object[]) playerInView[4];
-				System.out.println("First card: " + t[0] + " " + t[1]);
+				System.out.println("second card: " + t2[0] + " " + t2[1]);
 				playerInView[5] = -2; // sets it to -2 so the player knows it needs to take the hand
 				System.out.println("playerInView set to :" + playerInView[5]);
 				game.put(playerInView[0], playerInView[1], playerInView[2], playerInView[3], playerInView[4],
@@ -590,6 +590,13 @@ class canJoin implements Runnable {
 				players = lobby.get(new ActualField("join"), new FormalField(String.class));
 
 				House.playerId = House.fillSeats(mainAr);
+				System.out.println("printing the mainAr");
+				for(int i = 0; i < 7; i++) {
+					System.out.println(mainAr[i]);
+				}
+				
+				
+				
 				if (House.playerId > 0) {
 					lobby.put(House.playerId, players[1], House.BALANCE, House.gameSpace(spaceRepo, game),
 							House.boardSpace(spaceRepo, board));

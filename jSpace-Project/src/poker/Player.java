@@ -87,7 +87,7 @@ public class Player {
 			while (true) {
 
 				Thread.sleep(2000);
-				new Thread(new displayHandler(boardLobby, gameLobby)).start();
+				new Thread(new displayHandler(player,boardLobby, gameLobby)).start();
 				Thread.sleep(2000);
 			}
 
@@ -357,15 +357,16 @@ class turnHandler implements Runnable {
 class displayHandler implements Runnable {
 	private RemoteSpace game;
 	private RemoteSpace board;
+	private Player player;
 	static String first = "Player 1s, Turn";
 	static String second = "Player 2s, Turn";
 	static String third = "Player 3s, Turn";
 	static int counter = 0;
 
-	public displayHandler(RemoteSpace board, RemoteSpace game) throws UnknownHostException, IOException {
+	public displayHandler(Player player, RemoteSpace board, RemoteSpace game) throws UnknownHostException, IOException {
 		this.board = board;
 		this.game = game;
-
+		this.player = player;
 	}
 
 	public void run() {
@@ -374,7 +375,7 @@ class displayHandler implements Runnable {
 			// keep updating player info and printing them
 			while (true) {
 				wipeConsole();
-				getboardState(board, game);
+				getboardState(player,board, game);
 				Thread.sleep(5000);
 			}
 		} catch (InterruptedException e) {
@@ -382,20 +383,22 @@ class displayHandler implements Runnable {
 		}
 	}
 
-	public static void getboardState(RemoteSpace board, RemoteSpace game) throws InterruptedException {
+	public static void getboardState(Player player,RemoteSpace board, RemoteSpace game) throws InterruptedException {
 
-		List<Object[]> boardInfo = board.queryAll(new FormalField(Object.class), // firstcard
+		Card[] boardCards = new Card[7];
+
+		Object[] boardInfo = board.query(new FormalField(Object.class), // firstcard
 				new FormalField(Object.class), // second card
 				new FormalField(Object.class), // third card
 				new FormalField(Object.class), // fourth card
 				new FormalField(Object.class), // fifth card
 				new FormalField(Integer.class)); // pot
 
-		for (Object[] boardState : boardInfo) {
-			System.out.println(
-					"[ " + boardState[0] + " ] " + "[ " + boardState[1] + " ] " + "[ " + boardState[2] + " ] " + "[ "
-							+ boardState[3] + " ] " + "[ " + boardState[4] + " ] " + " " + boardState[5] + " $ ");
-		}
+//		for (Object[] boardState : boardInfo) {
+//			System.out.println(
+//					"[ " + boardState[0] + " ] " + "[ " + boardState[1] + " ] " + "[ " + boardState[2] + " ] " + "[ "
+//							+ boardState[3] + " ] " + "[ " + boardState[4] + " ] " + " " + boardState[5] + " $ ");
+//		}
 
 		List<Object[]> gameInfo = game.queryAll(new FormalField(Integer.class), // PlayerId
 				new FormalField(String.class), // player name
@@ -407,39 +410,49 @@ class displayHandler implements Runnable {
 				new FormalField(Integer.class) // totalBet
 		);
 
-		// create list
-		String[] update = new String[7];
-		String[]placeholderList = new String[7];
+		for (int i = 0; i < 5; i++) {
+			boardCards[i] = findAndMakeCard(boardInfo,i);
+			System.out.print(boardCards[i] +" " );
+		}
+
 		
-		if ((int) gameInfo.size() < 3) {
+		Thread.sleep(600);
 			for (Object[] playerInfo : gameInfo) {
 				if ((int) playerInfo[0] == 1) {
-					first = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+					first = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
-					
+
 				} else if ((int) playerInfo[0] == 2) {
-					second = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+					second = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+
 				} else if ((int) playerInfo[0] == 3) {
-					third = playerInfo[1] + " |" + "[" + playerInfo[3] + "]" + "| |" + "[" + playerInfo[4] + "]"
+					third = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+
 				} else {
 
 				}
 			}
+
 			
 			System.out.println(first);
 			System.out.println(second);
 			System.out.println(third);
-			counter++;
+			System.out.println("==============================================");
 			
-		}
-		while(counter == 2) {
-		getboardState(board, game);
-		}
-	
+			Object[] playerHand = {player.x1,player.x2};
+			for(int i = 0; i < 2 ; i++) {
+			System.out.println("Cards are " + findCard(playerHand,i,true));
+			}
+			
+			counter++;
+
 		
-	
+		while (counter == 2) {
+			getboardState(player, board, game);
+		}
+
 	}
 
 	public static void wipeConsole() {
@@ -448,4 +461,43 @@ class displayHandler implements Runnable {
 		}
 	}
 
+	public static Card findAndMakeCard(Object[] playerStats, int i) {
+		Object[] card = (Object[]) playerStats[i];
+		
+		int suit, val;
+		Double tempSuit;
+		Double tempVal;
+		
+		
+		tempSuit = (Double) card[0];
+		tempVal = (Double) card[1];
+		suit = tempSuit.intValue();
+		val = tempVal.intValue();
+
+		return new Card(Suit.suitFromInt(suit), val);
+	}
+	
+	public static Card findCard(Object[] playerStats, int i, boolean fromBoard) {
+		Object[] card = (Object[]) playerStats[i];
+		System.out.println("i: " + i);
+		for (int j = 0; j < card.length; j++) {
+			System.out.print("[" + card[j] + "]");
+		}
+		System.out.println();
+
+		int suit, val;
+		
+		if (fromBoard) {
+			suit = (int) card[0];
+			val = (int) card[1];
+		}
+		else {
+			Double tempSuit = (Double) card[0];
+			Double tempVal = (Double) card[1];
+			suit = tempSuit.intValue();
+			val = tempVal.intValue();
+		}
+		return new Card(Suit.suitFromInt(suit), val);
+	}
+	
 }
