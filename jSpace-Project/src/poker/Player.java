@@ -47,9 +47,9 @@ public class Player {
 		try {
 
 			BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
+			String ip = input.readLine();
 			// Set the URL of the lobby space
-			String uri = "tcp://localhost:9003/lobby?keep";
+			String uri = "tcp://"+ ip +":9003/lobby?keep";
 
 			// Connect to the remote chat space
 			System.out.println("Connecting to poker lobby wait room " + uri + "...");
@@ -84,12 +84,7 @@ public class Player {
 
 			System.out.println("Player id efter creation :" + player.playerId);
 			new Thread(new turnHandler(player, gameLobby)).start();
-			while (true) {
-
-				Thread.sleep(2000);
-				new Thread(new displayHandler(player,boardLobby, gameLobby)).start();
-				Thread.sleep(2000);
-			}
+			new Thread(new displayHandler(player,boardLobby, gameLobby)).start();
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -172,20 +167,10 @@ public class Player {
 				new ActualField(-3), // Raise, check, Fold
 				new FormalField(Integer.class), new FormalField(Integer.class));
 
-		System.out.println("Get player id : " + playerinfo[0]);
-		System.out.println("Get name : " + playerinfo[1]);
-		System.out.println("Get balance : " + playerinfo[2]);
-		System.out.println("Get first card : " + playerinfo[3]);
-		System.out.println("Get second card : " + playerinfo[4]);
-		System.out.println("Get raise check fold  : " + playerinfo[5]);
-		System.out.println("Get last bet : " + playerinfo[6]);
 
 		player.state = (int) playerinfo[5];
 
-		System.out.println("player state = " + player.state);
-
 		if ((int) playerinfo[5] == -2) {
-			System.out.println("�H NEJ");
 			// raise check fold
 
 		}
@@ -207,10 +192,8 @@ class turnHandler implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(player.getName());
 		Object[] info = null;
 		// get cards in first run.
-		System.out.println("first run");
 		try {
 			Object[] playerPlaceholder = gameLobby.get(new ActualField(player.getPlayerId()), // PlayerId
 					new ActualField(player.getName()), // player name
@@ -219,7 +202,6 @@ class turnHandler implements Runnable {
 					new FormalField(Object.class), // second card
 					new ActualField(-2), // Raise, check, Fold
 					new FormalField(Integer.class), new FormalField(Integer.class));
-			System.out.println("player id: " + playerPlaceholder[0]);
 			player.playerId = (int) playerPlaceholder[0];
 			player.name = (String) playerPlaceholder[1];
 			player.balance = (int) playerPlaceholder[2];
@@ -228,13 +210,8 @@ class turnHandler implements Runnable {
 			player.totalBet = (int) playerPlaceholder[7];
 			playerPlaceholder[5] = -3;
 			Object[] t = (Object[]) playerPlaceholder[3];
-			System.out.println("First card :" + t[0] + " " + t[1]);
 			Double value1 = (Double) t[0];
 			Double value2 = (Double) t[1];
-			System.out.println("First card :" + value1.intValue() + " " + value2.intValue());
-			System.out.println("got from game lobby");
-			System.out.println("Fetched player to give cards: " + playerPlaceholder);
-
 			// test
 
 			gameLobby.put(playerPlaceholder[0], // playerid
@@ -245,10 +222,6 @@ class turnHandler implements Runnable {
 					playerPlaceholder[5], // check raise fold
 					playerPlaceholder[6], // last bet
 					playerPlaceholder[7]);
-
-			System.out.println("lagt mig tilbage");
-
-			System.out.println("gave player back: " + playerPlaceholder);
 
 		} catch (InterruptedException e2) {
 			// TODO Auto-generated catch block
@@ -266,21 +239,24 @@ class turnHandler implements Runnable {
 						new FormalField(Integer.class), // Last bet
 						new FormalField(Integer.class));
 
-				System.out.println("Fetched player to start turn: " + info);
 
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			System.out.println("Spiller hentet");
-			System.out.println(info[1]);
-			System.out.println(info[5]);
+			try {
+				Thread.sleep(60);
+			} catch (InterruptedException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+
 			// raise check fold
 			try {
+				System.out.println("To check, enter 0. To Fold enter -1. To call, match the lastbet. To raise enter the desired ammount");
 				int bets = 0;
 				if ((int) info[6] > 0) {
-					System.out
-							.println("Call or Raise, the current bet is: " + info[6] + " and you have bet: " + info[7]);
+					System.out.println("Call or Raise, the current bet is: " + info[6] + " and you have bet: " + info[7]);
 					userBet = Integer.parseInt(input.readLine());
 					bets = userBet + (int) info[7];
 					while (bets < (int) info[6] && userBet != -1) {
@@ -289,6 +265,7 @@ class turnHandler implements Runnable {
 						userBet = Integer.parseInt(input.readLine());
 						bets = userBet + (int) info[7];
 					}
+					
 				} else if ((int) info[6] == 0) {
 					System.out.println("Check or Raise");
 					userBet = Integer.parseInt(input.readLine());
@@ -296,6 +273,7 @@ class turnHandler implements Runnable {
 						System.out.println("Your bid, is not valid, please try again");
 						System.out.println("Check or Raise");
 						userBet = Integer.parseInt(input.readLine());
+						bets = userBet + (int) info[7];
 					}
 				}
 			} catch (NumberFormatException e1) {
@@ -314,9 +292,10 @@ class turnHandler implements Runnable {
 			info[5] = userBet;
 			if (userBet > 0) {
 				info[7] = (int) info[7] + userBet;
+				int balance = (int) info[2];
+				info[2] = balance - userBet;
 			}
 			try {
-				System.out.println("putting player back");
 				gameLobby.put(info[0], // playerid
 						info[1], // name
 						info[2], // balance
@@ -326,13 +305,6 @@ class turnHandler implements Runnable {
 						info[6], // last bet
 						info[7]);
 				Object[] t = (Object[]) info[3];
-				System.out.println("Get player id : " + info[0]);
-				System.out.println("Get name : " + info[1]);
-				System.out.println("Get balance : " + t[0] + " " + t[1]);
-				System.out.println("Get first card : " + info[3]);
-				System.out.println("Get second card : " + info[4]);
-				System.out.println("Get raise check fold  : " + info[5]);
-				System.out.println("Get last bet : " + info[6]);
 
 				Thread.sleep(60);
 			} catch (InterruptedException e) {
@@ -347,8 +319,6 @@ class turnHandler implements Runnable {
 			 * FormalField(Integer.class), // first card new FormalField(Integer.class), //
 			 * second card new FormalField(Integer.class) // Raise, check, Fold );
 			 */
-			System.out.println("Done with turn");
-
 		}
 	}
 
@@ -361,7 +331,9 @@ class displayHandler implements Runnable {
 	static String first = "Player 1s, Turn";
 	static String second = "Player 2s, Turn";
 	static String third = "Player 3s, Turn";
-	static int counter = 0;
+	static String firstPlaceholder = "0";
+	static String secondPlaceholder = "0";
+	static String thirdPlaceholder = "0";
 
 	public displayHandler(Player player, RemoteSpace board, RemoteSpace game) throws UnknownHostException, IOException {
 		this.board = board;
@@ -374,9 +346,7 @@ class displayHandler implements Runnable {
 
 			// keep updating player info and printing them
 			while (true) {
-				wipeConsole();
-				getboardState(player,board, game);
-				Thread.sleep(5000);
+				getboardState(player,board, game);			
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -386,6 +356,7 @@ class displayHandler implements Runnable {
 	public static void getboardState(Player player,RemoteSpace board, RemoteSpace game) throws InterruptedException {
 
 		Card[] boardCards = new Card[7];
+		List<Object[]> gameInfoPlaceholder = null;
 
 		Object[] boardInfo = board.query(new FormalField(Object.class), // firstcard
 				new FormalField(Object.class), // second card
@@ -409,54 +380,88 @@ class displayHandler implements Runnable {
 				new FormalField(Integer.class), // Last bet
 				new FormalField(Integer.class) // totalBet
 		);
-
-		for (int i = 0; i < 5; i++) {
-			boardCards[i] = findAndMakeCard(boardInfo,i);
-			System.out.print(boardCards[i] +" " );
+		int CountToPlay = 0;
+//		if(CountToPlay < 1) {
+		while(gameInfo.size() < 3) {
+			gameInfo = game.queryAll(new FormalField(Integer.class), // PlayerId
+					new FormalField(String.class), // player name
+					new FormalField(Integer.class), // players balance
+					new FormalField(Object.class), // first card
+					new FormalField(Object.class), // second card
+					new FormalField(Integer.class), // Raise, check, Fold
+					new FormalField(Integer.class), // Last bet
+					new FormalField(Integer.class) );// totalBet
 		}
+//		CountToPlay++;
+//		}
 
 		
-		Thread.sleep(600);
+		
 			for (Object[] playerInfo : gameInfo) {
 				if ((int) playerInfo[0] == 1) {
+					if(playerInfo[1].equals(player.name)){
 					first = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
+					else {
+						first = playerInfo[1] + " |" + "[" + "X" + "]" + "| |" + "[" + "X" + "]"
+								+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
 
 				} else if ((int) playerInfo[0] == 2) {
+					if(playerInfo[1].equals(player.name)){
 					second = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
+					else {
+						second = playerInfo[1] + " |" + "[" + "X" + "]" + "| |" + "[" + "X" + "]"
+								+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
 
 				} else if ((int) playerInfo[0] == 3) {
+					if(playerInfo[1].equals(player.name)){
 					third = playerInfo[1] + " |" + "[" + findCard(playerInfo,3,false) + "]" + "| |" + "[" + findCard(playerInfo,4,false)+ "]"
 							+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
+					else {
+						third = playerInfo[1] + " |" + "[" + "X" + "]" + "| |" + "[" + "X" + "]"
+								+ "| balance|" + playerInfo[2] + "| total bet:|" + playerInfo[7] + "|";
+					}
 
 				} else {
 
 				}
 			}
-
 			
+			if(!(first == firstPlaceholder || first == secondPlaceholder || first == thirdPlaceholder) &&
+				!(second == firstPlaceholder || second == secondPlaceholder || second == thirdPlaceholder) &&
+				!(third == firstPlaceholder || third == secondPlaceholder || third == thirdPlaceholder)) {
+			wipeConsole();
+			for (int i = 0; i < 5; i++) {
+				boardCards[i] = findAndMakeCard(boardInfo,i);
+				System.out.print(boardCards[i] +" " );
+			}
+			System.out.println();
+			System.out.println("Pot: " + boardInfo[5]);
+			System.out.println();
 			System.out.println(first);
 			System.out.println(second);
 			System.out.println(third);
 			System.out.println("==============================================");
 			
-			Object[] playerHand = {player.x1,player.x2};
-			for(int i = 0; i < 2 ; i++) {
-			System.out.println("Cards are " + findCard(playerHand,i,true));
-			}
 			
-			counter++;
+			Object[] playerHand = {player.x1,player.x2};
+			}
+			firstPlaceholder = first;
+			secondPlaceholder = second;
+			thirdPlaceholder = third;
+			
 
-		
-		while (counter == 2) {
-			getboardState(player, board, game);
-		}
 
 	}
 
 	public static void wipeConsole() {
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 25; i++) {
 			System.out.println();
 		}
 	}
@@ -479,11 +484,10 @@ class displayHandler implements Runnable {
 	
 	public static Card findCard(Object[] playerStats, int i, boolean fromBoard) {
 		Object[] card = (Object[]) playerStats[i];
-		System.out.println("i: " + i);
-		for (int j = 0; j < card.length; j++) {
-			System.out.print("[" + card[j] + "]");
-		}
-		System.out.println();
+//		for (int j = 0; j < card.length; j++) {
+//			System.out.print("[" + card[j] + "]");
+//		}
+//		System.out.println();
 
 		int suit, val;
 		

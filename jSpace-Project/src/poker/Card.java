@@ -1,6 +1,8 @@
 package poker;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
 import org.jspace.ActualField;
@@ -11,6 +13,7 @@ public class Card {
 
 	private Suit suit;
 	private int number;
+	static String ip;
   
 	public Card(){
 		String suit;
@@ -53,7 +56,7 @@ public class Card {
 	
 	public static void addToDeck() throws InterruptedException, UnknownHostException, IOException {
 		//Need to create a check if the space exists.
-		String deckUri = "tcp://localhost:9003/deck?keep";
+		String deckUri = "tcp://"+ ip +":9003/deck?keep";
 		RemoteSpace deckSpace = new RemoteSpace(deckUri);
 	for (int i=1; i<=4; i++) {
 		for(int j=2; j<=14; j++) {
@@ -63,11 +66,14 @@ public class Card {
 	}	
 	
 	public static void main(String[] args) throws IOException, IOException, InterruptedException {
-	String deckUri = "tcp://localhost:9003/deck?keep";
+		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		ip = input.readLine();
+	String deckUri = "tcp://"+ ip +":9003/deck?keep";
 	RemoteSpace deckSpace = new RemoteSpace(deckUri);
 	int numberOfCards = 52;
 	
 	addToDeck();
+
 	
 	}	
 			

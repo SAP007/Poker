@@ -4,6 +4,8 @@ import org.jspace.RandomSpace;
 import org.jspace.SequentialSpace;
 import org.jspace.SpaceRepository;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,8 +24,11 @@ public class House {
 	final static int dealer = 1;
 	final static int[] mainAr = { 0, 0, 0, 0, 0, 0, 0 };
 	static int lastBet = 0;
+	static String ip;
 
 	public static void main(String[] args) throws Exception {
+		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+		ip = input.readLine();
 
 		House house = new House();
 		SpaceRepository spaceRepo = new SpaceRepository();
@@ -43,20 +48,23 @@ public class House {
 		createLobby(spaceRepo, lobby);
 		System.out.println("lobby created created");
 		new Thread(new canJoin(lobby, spaceRepo, game, board, mainAr)).start();
+		System.out.println("Waiting for 3 players");
 		while (countPlayers(mainAr) < 3) {
-			System.out.println("Venter p� 3 spillere");
 			Thread.sleep(60);
 		}
+		System.out.println("3 players have joined the game");
+		while(true) {
 		house.turn(game, board, mainAr, deck, dealer);
+		}
 
 	}
 
 	public static void spaceRepo(SpaceRepository spaceRepo) {
 		// Set the URI of the spaceRepo
-		String url = "tcp://localhost:9003/?keep";
+		String url = "tcp://"+ ip +":9003/?keep";
 
 		// Open a gate
-		spaceRepo.addGate("tcp://localhost:9003/?keep");
+		spaceRepo.addGate("tcp://"+ ip +":9003/?keep");
 		System.out.println("Space repository opened at: " + url + "...");
 
 	}
@@ -193,6 +201,7 @@ public class House {
 			throws InterruptedException {
 		int playerTurn = dealer; // finds the dealer and sets the playerTurn to that int value matching that id.
 		System.out.println("Playerturn set to: " + playerTurn + " gotten from dealer: " + dealer);
+		Thread.sleep(60);
 		for (int i = 0; i < 7; i++) {
 			if (mainAr[i] == playerTurn && mainAr[i] != 0) {
 				System.out.println("Printing array number: " + mainAr[i]);
@@ -413,13 +422,13 @@ public class House {
 
 	public static String boardSpace(SpaceRepository spaceRepo, SequentialSpace board) {
 		// check if board exists
-		String boardUrl = "tcp://localhost:9003/board?keep";
+		String boardUrl = "tcp://"+ ip +":9003/board?keep";
 		return boardUrl;
 	}
 
 	public static String gameSpace(SpaceRepository spaceRepo, SequentialSpace game) {
 		// check if board exists
-		String gameUrl = "tcp://localhost:9003/game?keep";
+		String gameUrl = "tcp://"+ ip +":9003/game?keep";
 		return gameUrl;
 	}
 
